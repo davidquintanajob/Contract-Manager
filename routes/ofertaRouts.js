@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ofertaController = require("../controllers/ofertaController.js");
+const authenticate = require("../helpers/authenticate");
 
 /**
  * @swagger
@@ -11,7 +12,7 @@ const ofertaController = require("../controllers/ofertaController.js");
 
 /**
  * @swagger
- * /api/ofertas:
+ * /ofertas:
  *   get:
  *     summary: Obtiene todas las ofertas
  *     tags:
@@ -21,14 +22,29 @@ const ofertaController = require("../controllers/ofertaController.js");
  *         description: Lista de ofertas obtenida exitosamente
  *         content:
  *           application/json:
+ *             schema:
+ *               type: array
+ *             example:
+ *               - id_oferta: 1
+ *                 fecha_inicio: "2023-01-01"
+ *                 fecha_fin: "2023-01-31"
+ *                 id_contrato: 101
+ *                 descripcion: "Oferta de desarrollo de software para proyecto X."
+ *                 id_usuario: 50
+ *               - id_oferta: 2
+ *                 fecha_inicio: "2023-02-15"
+ *                 fecha_fin: "2023-03-15"
+ *                 id_contrato: 102
+ *                 descripcion: "Oferta de consultoría de TI."
+ *                 id_usuario: 51
  *       500:
  *         description: Error del servidor
  */
-router.get("/api/ofertas", ofertaController.getAllOfertas);
+router.get("/oferta",authenticate(), ofertaController.getAllOfertas);
 
 /**
  * @swagger
- * /api/ofertas/{id}:
+ * /oferta/{id}:
  *   get:
  *     summary: Obtiene una oferta por ID
  *     tags:
@@ -45,16 +61,25 @@ router.get("/api/ofertas", ofertaController.getAllOfertas);
  *         description: Oferta obtenida exitosamente
  *         content:
  *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               id_oferta: 1
+ *               fecha_inicio: "2023-01-01"
+ *               fecha_fin: "2023-01-31"
+ *               id_contrato: 101
+ *               descripcion: "Oferta de desarrollo de software para proyecto X."
+ *               id_usuario: 50
  *       404:
  *         description: Oferta no encontrada
  *       500:
  *         description: Error del servidor
  */
-router.get("/api/ofertas/:id", ofertaController.getOfertaById);
+router.get("/oferta/:id",authenticate(), ofertaController.getOfertaById);
 
 /**
  * @swagger
- * /api/ofertas:
+ * /oferta/CreateOferta:
  *   post:
  *     summary: Crea una nueva oferta
  *     tags:
@@ -63,28 +88,37 @@ router.get("/api/ofertas/:id", ofertaController.getOfertaById);
  *       required: true
  *       content:
  *         application/json:
- *           example:
- *             titulo: "Desarrollador Full Stack"
- *             descripcion: "Se busca desarrollador con experiencia en Node.js y React."
- *             salario: 45000.00
- *             fecha_publicacion: "2023-10-26"
- *             fecha_cierre: "2023-11-26"
- *             activa: true
+ *           schema:
+ *             type: object
+ *             example:
+ *               fecha_inicio: "YYYY-MM-DD"
+ *               fecha_fin: "YYYY-MM-DD"
+ *               id_contrato: 1
+ *               descripcion: "Se busca desarrollador con experiencia en Node.js y React."
+ *               id_usuario: 1
  *     responses:
  *       201:
  *         description: Oferta creada exitosamente
  *         content:
  *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               fecha_inicio: "YYYY-MM-DD"
+ *               fecha_fin: "YYYY-MM-DD"
+ *               id_contrato: 1
+ *               descripcion: "Se busca desarrollador con experiencia en Node.js y React."
+ *               id_usuario: 1
  *       400:
  *         description: Datos de entrada inválidos
  *       500:
  *         description: Error del servidor
  */
-router.post("/api/ofertas", ofertaController.createOferta);
+router.post("/oferta/CreateOferta",authenticate(), ofertaController.createOferta);
 
 /**
  * @swagger
- * /api/ofertas/{id}:
+ * /oferta/updateOferta/{id}:
  *   put:
  *     summary: Actualiza una oferta existente
  *     tags:
@@ -100,18 +134,27 @@ router.post("/api/ofertas", ofertaController.createOferta);
  *       required: true
  *       content:
  *         application/json:
- *           example:
- *             titulo: "Desarrollador Backend Senior"
- *             descripcion: "Actualización: Más énfasis en microservicios."
- *             salario: 50000.00
- *             fecha_publicacion: "2023-10-26"
- *             fecha_cierre: "2023-12-26"
- *             activa: false
+ *           schema:
+ *             type: object
+ *             example:
+ *               fecha_inicio: "YYYY-MM-DD"
+ *               fecha_fin: "YYYY-MM-DD"
+ *               id_contrato: 1
+ *               descripcion: "Actualización: Más énfasis en microservicios."
+ *               id_usuario: 1
  *     responses:
  *       200:
  *         description: Oferta actualizada exitosamente
  *         content:
  *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               fecha_inicio: "YYYY-MM-DD"
+ *               fecha_fin: "YYYY-MM-DD"
+ *               id_contrato: 1
+ *               descripcion: "Actualización: Más énfasis en microservicios."
+ *               id_usuario: 1
  *       400:
  *         description: Datos de entrada inválidos
  *       404:
@@ -119,11 +162,11 @@ router.post("/api/ofertas", ofertaController.createOferta);
  *       500:
  *         description: Error del servidor
  */
-router.put("/api/ofertas/:id", ofertaController.updateOferta);
+router.put("/oferta/updateOferta/:id",authenticate(), ofertaController.updateOferta);
 
 /**
  * @swagger
- * /api/ofertas/{id}:
+ * /oferta/deleteOferta/{id}:
  *   delete:
  *     summary: Elimina una oferta
  *     tags:
@@ -143,6 +186,6 @@ router.put("/api/ofertas/:id", ofertaController.updateOferta);
  *       500:
  *         description: Error del servidor
  */
-router.delete("/api/ofertas/:id", ofertaController.deleteOferta);
+router.delete("/oferta/deleteOferta/:id",authenticate(), ofertaController.deleteOferta);
 
 module.exports = router; 

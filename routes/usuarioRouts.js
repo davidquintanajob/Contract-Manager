@@ -44,7 +44,7 @@ const authenticate = require("../helpers/authenticate");
  *       500:
  *         description: Error del servidor.
  */
-router.post("/Usuario/createUsuario", usuarioController.createUsuario);
+router.post("/Usuario/createUsuario",authenticate(), usuarioController.createUsuario);
 
 /**
  * @swagger
@@ -65,7 +65,7 @@ router.post("/Usuario/createUsuario", usuarioController.createUsuario);
  *       500:
  *         description: Error del servidor.
  */
-router.get("/Usuario", usuarioController.getUsuarios);
+router.get("/Usuario",authenticate(), usuarioController.getUsuarios);
 
 /**
  * @swagger
@@ -214,7 +214,7 @@ router.put("/Usuario/updateUsuario/:id", authenticate(), usuarioController.updat
  *       500:
  *         description: Error del servidor.
  */
-router.delete("/Usuario/deleteUsuario/:id", usuarioController.deleteUsuario);
+router.delete("/Usuario/deleteUsuario/:id",authenticate(), usuarioController.deleteUsuario);
 
 /**
  * @swagger
@@ -327,6 +327,6 @@ router.post("/Usuario/login", usuarioController.login);
  *       500:
  *         description: Error del servidor.
  */
-router.post("/Usuario/filterUsers", usuarioController.filterUsuarios);
+router.post("/Usuario/filterUsers",authenticate(), usuarioController.filterUsuarios);
 
 module.exports = router;
