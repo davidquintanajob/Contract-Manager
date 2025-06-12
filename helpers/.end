@@ -1,0 +1,27 @@
+const { Sequelize } = require('sequelize');
+require('dotenv').config();
+
+const sequelize = new Sequelize(
+  process.env.NAME_BD,       // nombre de la base de datos
+  process.env.USER_BD,       // usuario
+  process.env.PASSWORD_BD,   // contraseña
+  {
+    host: process.env.HOST_BD,
+    port: process.env.PORT_BD,
+    dialect: 'postgres', // <-- Aquí ponemos directamente el dialecto
+    logging: false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
+  }
+);
+
+// Prueba de conexión (opcional pero recomendado)
+sequelize.authenticate()
+  .then(() => console.log('Conexión a la base de datos establecida'))
+  .catch(err => console.error('Error al conectar a la base de datos:', err));
+
+module.exports = sequelize;
