@@ -15,34 +15,41 @@ const Entidad = sequelize.define("entidad", {
   direccion: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: ""
   },
   telefono: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: ""
   },
   email: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true,
+    unique: false,
     validate: {
       isEmail: true,
     },
+    defaultValue: ""
   },
   cuenta_bancaria: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: ""
   },
   tipo_entidad: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: ""
   },
   codigo_reo: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: ""
   },
   codigo_nit: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: ""
   },
 }, {
   timestamps: true,

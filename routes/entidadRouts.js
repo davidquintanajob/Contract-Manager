@@ -383,4 +383,131 @@ router.put("/entidad/UpdateEntidad/:id",authenticate(), entidadController.update
  */
 router.delete("/entidad/deleteEntidad/:id",authenticate(), entidadController.deleteEntidad);
 
+/**
+ * @swagger
+ * /entidad/filter/{page}/{limit}:
+ *   post:
+ *     summary: Filtrar entidades por múltiples criterios
+ *     description: Permite buscar entidades utilizando diferentes criterios de búsqueda. La búsqueda es insensible a mayúsculas/minúsculas y permite coincidencias parciales. Incluye paginación de resultados.
+ *     tags: [Entidad]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: page
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Número de página a consultar
+ *       - in: path
+ *         name: limit
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Número de elementos por página
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 description: Nombre de la entidad (búsqueda parcial)
+ *               direccion:
+ *                 type: string
+ *                 description: Dirección de la entidad (búsqueda parcial)
+ *               telefono:
+ *                 type: string
+ *                 description: Teléfono de la entidad (búsqueda parcial)
+ *               cuenta_bancaria:
+ *                 type: string
+ *                 description: Cuenta bancaria de la entidad (búsqueda parcial)
+ *               tipo_entidad:
+ *                 type: string
+ *                 enum: [cliente, proveedor, cliente_proveedor]
+ *                 description: Tipo de entidad
+ *               codigo_reo:
+ *                 type: string
+ *                 description: Código REO de la entidad (búsqueda parcial)
+ *               codigo_nit:
+ *                 type: string
+ *                 description: Código NIT de la entidad (búsqueda parcial)
+ *           example:
+ *             nombre: "Empresa Ejemplo S.A.S"
+ *             direccion: "Calle 123 #45-67"
+ *             telefono: "6012345678"
+ *             cuenta_bancaria: "1234-5678-9012-3456"
+ *             tipo_entidad: "cliente_proveedor"
+ *             codigo_reo: "REO123456"
+ *             codigo_nit: "9012345678-9"
+ *     responses:
+ *       200:
+ *         description: Lista de entidades que coinciden con los criterios de búsqueda
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Entidades filtradas exitosamente
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Entidad'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       description: Número total de registros que coinciden con los filtros
+ *                       example: 45
+ *                     page:
+ *                       type: integer
+ *                       description: Página actual
+ *                       example: 1
+ *                     limit:
+ *                       type: integer
+ *                       description: Número de elementos por página
+ *                       example: 10
+ *                     totalPages:
+ *                       type: integer
+ *                       description: Número total de páginas
+ *                       example: 5
+ *       400:
+ *         description: Error en los parámetros de paginación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: El número de página debe ser un número entero positivo
+ *                 error:
+ *                   type: string
+ *                   example: PAGE_INVALID
+ *       500:
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al filtrar entidades
+ *                 error:
+ *                   type: string
+ *                   example: Error interno del servidor
+ */
+router.post('/entidad/filter/:page/:limit', authenticate(), entidadController.filterEntidades);
+
 module.exports = router; 

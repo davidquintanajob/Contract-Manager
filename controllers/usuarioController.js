@@ -48,18 +48,63 @@ const getUsuarioById = async (req, res) => {
  */
 const createUsuario = async (req, res) => {
   const { nombre, nombre_usuario, cargo, contrasenna, rol } = req.body;
+  const errors = [];
 
-  // Validar entrada
+  // Validar campos requeridos
   if (!nombre || !nombre_usuario || !cargo || !contrasenna || !rol) {
-    return res.status(400).json({
-      message: "Todos los campos son obligatorios: nombre, nombre_usuario, cargo, contrasenna, rol",
-    });
+    errors.push("Todos los campos son obligatorios: nombre, nombre_usuario, cargo, contrasenna, rol");
   }
 
-  // Validar que el rol de usuario sea correcto
-  if (rol !== "Administrador" && rol !== "Empleado" && rol !== "Administrador General") {
+  // Validar formato del nombre
+  if (nombre) {
+    if (nombre.length < 3 || nombre.length > 50) {
+      errors.push("El nombre debe tener entre 3 y 50 caracteres");
+    }
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) {
+      errors.push("El nombre solo puede contener letras y espacios");
+    }
+  }
+
+  // Validar formato del nombre de usuario
+  if (nombre_usuario) {
+    if (nombre_usuario.length < 4 || nombre_usuario.length > 20) {
+      errors.push("El nombre de usuario debe tener entre 4 y 20 caracteres");
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(nombre_usuario)) {
+      errors.push("El nombre de usuario solo puede contener letras, números y guiones bajos");
+    }
+  }
+
+  // Validar formato del cargo
+  if (cargo) {
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(cargo)) {
+      errors.push("El cargo solo puede contener letras y espacios");
+    }
+  }
+
+  // Validar formato de la contraseña
+  if (contrasenna) {
+    if (contrasenna.length < 6) {
+      errors.push("La contraseña debe tener al menos 6 caracteres");
+    }
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(contrasenna)) {
+      errors.push("La contraseña debe contener al menos una letra mayúscula, una minúscula y un número");
+    }
+  }
+
+  // Validar rol
+  if (rol) {
+    const rolesValidos = ["Administrador", "Empleado", "Administrador General"];
+    if (!rolesValidos.includes(rol)) {
+      errors.push("El rol debe ser uno de los siguientes: Administrador, Empleado, Administrador General");
+    }
+  }
+
+  // Si hay errores de validación, retornarlos todos juntos
+  if (errors.length > 0) {
     return res.status(400).json({
-      message: "El rol de usuario debe ser Administrador, Administrador General o Empleado"
+      message: "Errores de validación",
+      errors: errors
     });
   }
 
@@ -75,7 +120,7 @@ const createUsuario = async (req, res) => {
     console.error("Error al verificar el nombre de usuario:", error);
     return res.status(500).json({
       message: "Error al crear el usuario",
-      error,
+      error: error.message,
     });
   }
 
@@ -93,11 +138,22 @@ const createUsuario = async (req, res) => {
   
   try {
     const newUsuario = await usuarioService.createUsuario(usuarioData);
-    return res.status(201).json(newUsuario);
+    return res.status(201).json({
+      message: "Usuario creado exitosamente",
+      data: {
+        id_usuario: newUsuario.id_usuario,
+        nombre: newUsuario.nombre,
+        nombre_usuario: newUsuario.nombre_usuario,
+        cargo: newUsuario.cargo,
+        rol: newUsuario.rol,
+        activo: newUsuario.activo
+      }
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error al crear el usuario:", error);
     return res.status(500).json({
-      message: "Error al crear el usuario: " + error.message,
+      message: "Error al crear el usuario",
+      error: error.message,
     });
   }
 };
