@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const contratoController = require("../controllers/contratoController.js");
+const authenticate = require("../helpers/authenticate");
 
 /**
  * @swagger
@@ -11,7 +12,7 @@ const contratoController = require("../controllers/contratoController.js");
 
 /**
  * @swagger
- * /api/contratos:
+ * /contrato:
  *   get:
  *     summary: Obtiene todos los contratos
  *     tags:
@@ -21,14 +22,72 @@ const contratoController = require("../controllers/contratoController.js");
  *         description: Lista de contratos obtenida exitosamente
  *         content:
  *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id_contrato:
+ *                     type: integer
+ *                     description: ID único del contrato
+ *                   id_entidad:
+ *                     type: integer
+ *                     description: ID de la entidad asociada
+ *                   id_tipo_contrato:
+ *                     type: integer
+ *                     description: ID del tipo de contrato
+ *                   fecha_inicio:
+ *                     type: string
+ *                     format: date
+ *                     description: Fecha de inicio del contrato
+ *                   fecha_fin:
+ *                     type: string
+ *                     format: date
+ *                     description: Fecha de finalización del contrato
+ *                   num_consecutivo:
+ *                     type: integer
+ *                     description: Número consecutivo único del contrato
+ *                   clasificacion:
+ *                     type: string
+ *                     description: Clasificación del contrato
+ *                   nota:
+ *                     type: string
+ *                     description: Notas adicionales del contrato
+ *                   entidad:
+ *                     type: object
+ *                     description: Información de la entidad asociada
+ *                   tipoContrato:
+ *                     type: object
+ *                     description: Información del tipo de contrato
+ *                   ofertas:
+ *                     type: array
+ *                     description: Lista de ofertas asociadas
+ *                   trabajadoresAutorizados:
+ *                     type: array
+ *                     description: Lista de trabajadores autorizados
+ *             example:
+ *               - id_contrato: 1
+ *                 id_entidad: 1
+ *                 id_tipo_contrato: 1
+ *                 fecha_inicio: "2024-01-01"
+ *                 fecha_fin: "2024-12-31"
+ *                 num_consecutivo: 1001
+ *                 clasificacion: "Servicios"
+ *                 nota: "Contrato de servicios profesionales"
+ *                 entidad:
+ *                   id_entidad: 1
+ *                   nombre: "Empresa ABC"
+ *                 tipoContrato:
+ *                   id_tipo_contrato: 1
+ *                   nombre: "Contrato Temporal"
  *       500:
  *         description: Error del servidor
  */
-router.get("/api/contratos", contratoController.getAllContratos);
+router.get("/contrato", authenticate(), contratoController.getAllContratos);
 
 /**
  * @swagger
- * /api/contratos/{id}:
+ * /contrato/{id}:
  *   get:
  *     summary: Obtiene un contrato por ID
  *     tags:
@@ -45,16 +104,72 @@ router.get("/api/contratos", contratoController.getAllContratos);
  *         description: Contrato obtenido exitosamente
  *         content:
  *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id_contrato:
+ *                   type: integer
+ *                   description: ID único del contrato
+ *                 id_entidad:
+ *                   type: integer
+ *                   description: ID de la entidad asociada
+ *                 id_tipo_contrato:
+ *                   type: integer
+ *                   description: ID del tipo de contrato
+ *                 fecha_inicio:
+ *                   type: string
+ *                   format: date
+ *                   description: Fecha de inicio del contrato
+ *                 fecha_fin:
+ *                   type: string
+ *                   format: date
+ *                   description: Fecha de finalización del contrato
+ *                 num_consecutivo:
+ *                   type: integer
+ *                   description: Número consecutivo único del contrato
+ *                 clasificacion:
+ *                   type: string
+ *                   description: Clasificación del contrato
+ *                 nota:
+ *                   type: string
+ *                   description: Notas adicionales del contrato
+ *                 entidad:
+ *                   type: object
+ *                   description: Información de la entidad asociada
+ *                 tipoContrato:
+ *                   type: object
+ *                   description: Información del tipo de contrato
+ *                 ofertas:
+ *                   type: array
+ *                   description: Lista de ofertas asociadas
+ *                 trabajadoresAutorizados:
+ *                   type: array
+ *                   description: Lista de trabajadores autorizados
+ *             example:
+ *               id_contrato: 1
+ *               id_entidad: 1
+ *               id_tipo_contrato: 1
+ *               fecha_inicio: "2024-01-01"
+ *               fecha_fin: "2024-12-31"
+ *               num_consecutivo: 1001
+ *               clasificacion: "Servicios"
+ *               nota: "Contrato de servicios profesionales"
+ *               entidad:
+ *                 id_entidad: 1
+ *                 nombre: "Empresa ABC"
+ *               tipoContrato:
+ *                 id_tipo_contrato: 1
+ *                 nombre: "Contrato Temporal"
  *       404:
  *         description: Contrato no encontrado
  *       500:
  *         description: Error del servidor
  */
-router.get("/api/contratos/:id", contratoController.getContratoById);
+router.get("/contrato/:id", authenticate(), contratoController.getContratoById);
 
 /**
  * @swagger
- * /api/contratos:
+ * /contrato/CreateContrato:
  *   post:
  *     summary: Crea un nuevo contrato
  *     tags:
@@ -63,28 +178,130 @@ router.get("/api/contratos/:id", contratoController.getContratoById);
  *       required: true
  *       content:
  *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id_entidad
+ *               - id_tipo_contrato
+ *               - fecha_inicio
+ *               - fecha_fin
+ *               - num_consecutivo
+ *               - clasificacion
+ *             properties:
+ *               id_entidad:
+ *                 type: integer
+ *                 description: ID de la entidad asociada (obligatorio)
+ *               id_tipo_contrato:
+ *                 type: integer
+ *                 description: ID del tipo de contrato (obligatorio)
+ *               fecha_inicio:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de inicio del contrato (obligatorio)
+ *               fecha_fin:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de finalización del contrato (obligatorio)
+ *               num_consecutivo:
+ *                 type: integer
+ *                 description: Número consecutivo único del contrato (obligatorio)
+ *               clasificacion:
+ *                 type: string
+ *                 description: Clasificación del contrato (obligatorio)
+ *               nota:
+ *                 type: string
+ *                 description: Notas adicionales del contrato (opcional)
  *           example:
- *             id_tipo_contrato: 102
- *             id_entidad: 202
- *             fecha_inicio: "2023-02-01"
- *             fecha_fin: "2024-02-01"
- *             salario: 32000.00
- *             activo: true
+ *             id_entidad: 1
+ *             id_tipo_contrato: 1
+ *             fecha_inicio: "2024-01-01"
+ *             fecha_fin: "2024-12-31"
+ *             num_consecutivo: 1001
+ *             clasificacion: "Servicios"
+ *             nota: "Contrato de servicios profesionales"
  *     responses:
  *       201:
  *         description: Contrato creado exitosamente
  *         content:
  *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id_contrato:
+ *                   type: integer
+ *                   description: ID del contrato creado
+ *                 id_entidad:
+ *                   type: integer
+ *                   description: ID de la entidad asociada
+ *                 id_tipo_contrato:
+ *                   type: integer
+ *                   description: ID del tipo de contrato
+ *                 fecha_inicio:
+ *                   type: string
+ *                   format: date
+ *                   description: Fecha de inicio del contrato
+ *                 fecha_fin:
+ *                   type: string
+ *                   format: date
+ *                   description: Fecha de finalización del contrato
+ *                 num_consecutivo:
+ *                   type: integer
+ *                   description: Número consecutivo único del contrato
+ *                 clasificacion:
+ *                   type: string
+ *                   description: Clasificación del contrato
+ *                 nota:
+ *                   type: string
+ *                   description: Notas adicionales del contrato
+ *                 entidad:
+ *                   type: object
+ *                   description: Información de la entidad asociada
+ *                   properties:
+ *                     id_entidad:
+ *                       type: integer
+ *                     nombre:
+ *                       type: string
+ *                 tipoContrato:
+ *                   type: object
+ *                   description: Información del tipo de contrato
+ *                   properties:
+ *                     id_tipo_contrato:
+ *                       type: integer
+ *                     nombre:
+ *                       type: string
+ *                 ofertas:
+ *                   type: array
+ *                   description: Lista de ofertas asociadas
+ *                 trabajadoresAutorizados:
+ *                   type: array
+ *                   description: Lista de trabajadores autorizados
+ *             example:
+ *               id_contrato: 1
+ *               id_entidad: 1
+ *               id_tipo_contrato: 1
+ *               fecha_inicio: "2024-01-01"
+ *               fecha_fin: "2024-12-31"
+ *               num_consecutivo: 1001
+ *               clasificacion: "Servicios"
+ *               nota: "Contrato de servicios profesionales"
+ *               entidad:
+ *                 id_entidad: 1
+ *                 nombre: "Empresa ABC"
+ *               tipoContrato:
+ *                 id_tipo_contrato: 1
+ *                 nombre: "Contrato Temporal"
+ *               ofertas: []
+ *               trabajadoresAutorizados: []
  *       400:
- *         description: Datos de entrada inválidos
+ *         description: Datos de entrada inválidos o entidad/tipo de contrato no encontrados
  *       500:
  *         description: Error del servidor
  */
-router.post("/api/contratos", contratoController.createContrato);
+router.post("/contrato/CreateContrato", authenticate(), contratoController.createContrato);
 
 /**
  * @swagger
- * /api/contratos/{id}:
+ * /contrato/UpdateContrato/{id}:
  *   put:
  *     summary: Actualiza un contrato existente
  *     tags:
@@ -100,30 +317,125 @@ router.post("/api/contratos", contratoController.createContrato);
  *       required: true
  *       content:
  *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id_entidad:
+ *                 type: integer
+ *                 description: ID de la entidad asociada (obligatorio si se actualiza)
+ *               id_tipo_contrato:
+ *                 type: integer
+ *                 description: ID del tipo de contrato (obligatorio si se actualiza)
+ *               fecha_inicio:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de inicio del contrato
+ *               fecha_fin:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de finalización del contrato
+ *               num_consecutivo:
+ *                 type: integer
+ *                 description: Número consecutivo único del contrato
+ *               clasificacion:
+ *                 type: string
+ *                 description: Clasificación del contrato
+ *               nota:
+ *                 type: string
+ *                 description: Notas adicionales del contrato
  *           example:
- *             id_tipo_contrato: 102
- *             id_entidad: 202
- *             fecha_inicio: "2023-02-01"
- *             fecha_fin: "2024-02-01"
- *             salario: 32000.00
- *             activo: true
+ *             id_entidad: 1
+ *             id_tipo_contrato: 1
+ *             fecha_inicio: "2024-01-01"
+ *             fecha_fin: "2024-12-31"
+ *             num_consecutivo: 1001
+ *             clasificacion: "Servicios"
+ *             nota: "Contrato de servicios profesionales actualizado"
  *     responses:
  *       200:
  *         description: Contrato actualizado exitosamente
  *         content:
  *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id_contrato:
+ *                   type: integer
+ *                   description: ID del contrato actualizado
+ *                 id_entidad:
+ *                   type: integer
+ *                   description: ID de la entidad asociada
+ *                 id_tipo_contrato:
+ *                   type: integer
+ *                   description: ID del tipo de contrato
+ *                 fecha_inicio:
+ *                   type: string
+ *                   format: date
+ *                   description: Fecha de inicio del contrato
+ *                 fecha_fin:
+ *                   type: string
+ *                   format: date
+ *                   description: Fecha de finalización del contrato
+ *                 num_consecutivo:
+ *                   type: integer
+ *                   description: Número consecutivo único del contrato
+ *                 clasificacion:
+ *                   type: string
+ *                   description: Clasificación del contrato
+ *                 nota:
+ *                   type: string
+ *                   description: Notas adicionales del contrato
+ *                 entidad:
+ *                   type: object
+ *                   description: Información de la entidad asociada
+ *                   properties:
+ *                     id_entidad:
+ *                       type: integer
+ *                     nombre:
+ *                       type: string
+ *                 tipoContrato:
+ *                   type: object
+ *                   description: Información del tipo de contrato
+ *                   properties:
+ *                     id_tipo_contrato:
+ *                       type: integer
+ *                     nombre:
+ *                       type: string
+ *                 ofertas:
+ *                   type: array
+ *                   description: Lista de ofertas asociadas
+ *                 trabajadoresAutorizados:
+ *                   type: array
+ *                   description: Lista de trabajadores autorizados
+ *             example:
+ *               id_contrato: 1
+ *               id_entidad: 1
+ *               id_tipo_contrato: 1
+ *               fecha_inicio: "2024-01-01"
+ *               fecha_fin: "2024-12-31"
+ *               num_consecutivo: 1001
+ *               clasificacion: "Servicios"
+ *               nota: "Contrato de servicios profesionales actualizado"
+ *               entidad:
+ *                 id_entidad: 1
+ *                 nombre: "Empresa ABC"
+ *               tipoContrato:
+ *                 id_tipo_contrato: 1
+ *                 nombre: "Contrato Temporal"
+ *               ofertas: []
+ *               trabajadoresAutorizados: []
  *       400:
- *         description: Datos de entrada inválidos
+ *         description: Datos de entrada inválidos o entidad/tipo de contrato no encontrados
  *       404:
  *         description: Contrato no encontrado
  *       500:
  *         description: Error del servidor
  */
-router.put("/api/contratos/:id", contratoController.updateContrato);
+router.put("/contrato/UpdateContrato/:id", authenticate(), contratoController.updateContrato);
 
 /**
  * @swagger
- * /api/contratos/{id}:
+ * /contrato/deleteContrato/{id}:
  *   delete:
  *     summary: Elimina un contrato
  *     tags:
@@ -136,13 +448,163 @@ router.put("/api/contratos/:id", contratoController.updateContrato);
  *         schema:
  *           type: integer
  *     responses:
- *       204:
+ *       200:
  *         description: Contrato eliminado exitosamente
  *       404:
  *         description: Contrato no encontrado
  *       500:
  *         description: Error del servidor
  */
-router.delete("/api/contratos/:id", contratoController.deleteContrato);
+router.delete("/contrato/deleteContrato/:id", authenticate(), contratoController.deleteContrato);
+
+/**
+ * @swagger
+ * /contrato/next-consecutivo/{year}:
+ *   get:
+ *     summary: Obtiene el siguiente número consecutivo disponible para un año
+ *     tags:
+ *       - Contrato
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         schema:
+ *           type: integer
+ *           minimum: 1900
+ *           maximum: 2100
+ *         required: true
+ *         description: Año para determinar el número consecutivo (formato YYYY)
+ *     responses:
+ *       200:
+ *         description: Siguiente número consecutivo obtenido exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Siguiente número consecutivo obtenido exitosamente
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     year:
+ *                       type: integer
+ *                       example: 2024
+ *                     siguiente_consecutivo:
+ *                       type: integer
+ *                       example: 24
+ *       400:
+ *         description: Error en la solicitud
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al obtener el siguiente número consecutivo
+ *                 error:
+ *                   type: string
+ *                   example: El año debe ser un número válido entre 1900 y 2100
+ */
+router.get("/contrato/next-consecutivo/:year", authenticate(), contratoController.getNextConsecutivo);
+
+/**
+ * @swagger
+ * /contrato/filter/{page}/{limit}:
+ *   post:
+ *     summary: Filtra contratos según criterios específicos con paginación
+ *     tags:
+ *       - Contrato
+ *     parameters:
+ *       - in: path
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         required: true
+ *         description: Número de página
+ *       - in: path
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         required: true
+ *         description: Límite de registros por página
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre_entidad:
+ *                 type: string
+ *                 description: Nombre de la entidad (búsqueda case-insensitive)
+ *               id_tipo_contrato:
+ *                 type: integer
+ *                 description: ID del tipo de contrato
+ *               fecha_inicio:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de inicio mínima
+ *               fecha_fin:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de fin máxima
+ *               num_consecutivo:
+ *                 type: integer
+ *                 description: Número consecutivo
+ *     responses:
+ *       200:
+ *         description: Contratos filtrados exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Contratos filtrados exitosamente
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Contrato'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       example: 50
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 5
+ *                     currentPage:
+ *                       type: integer
+ *                       example: 1
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *                     hasNextPage:
+ *                       type: boolean
+ *                       example: true
+ *                     hasPrevPage:
+ *                       type: boolean
+ *                       example: false
+ *       500:
+ *         description: Error al filtrar contratos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al filtrar contratos
+ *                 error:
+ *                   type: string
+ */
+router.post("/contrato/filter/:page/:limit",  contratoController.filterContratos);
 
 module.exports = router; 

@@ -10,6 +10,7 @@ const TipoContrato = sequelize.define("tipo_contrato", {
   nombre: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true
   }
 }, {
   timestamps: true

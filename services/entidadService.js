@@ -33,7 +33,7 @@ const EntidadService = {
             },
             {
               model: TrabajadorAutorizado,
-              as: 'trabajadorAutorizado'
+              as: 'trabajadoresAutorizados'
             }
           ]
         }]
@@ -66,7 +66,7 @@ const EntidadService = {
             },
             {
               model: TrabajadorAutorizado,
-              as: 'trabajadorAutorizado'
+              as: 'trabajadoresAutorizados'
             }
           ]
         }]
@@ -272,7 +272,7 @@ const EntidadService = {
             },
             {
               model: TrabajadorAutorizado,
-              as: 'trabajadorAutorizado'
+              as: 'trabajadoresAutorizados'
             }
           ]
         }],

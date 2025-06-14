@@ -36,7 +36,7 @@ const Contrato = sequelize.define("contrato", {
   num_consecutivo: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    unique: true,
+    unique: false,
   },
   clasificacion: {
     type: DataTypes.STRING,
