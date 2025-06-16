@@ -12,7 +12,7 @@ const authenticate = require("../helpers/authenticate");
 
 /**
  * @swagger
- * /ofertas:
+ * /oferta:
  *   get:
  *     summary: Obtiene todas las ofertas
  *     tags:
@@ -41,6 +41,7 @@ const authenticate = require("../helpers/authenticate");
  *         description: Error del servidor
  */
 router.get("/oferta",authenticate(), ofertaController.getAllOfertas);
+
 
 /**
  * @swagger
@@ -188,4 +189,57 @@ router.put("/oferta/updateOferta/:id",authenticate(), ofertaController.updateOfe
  */
 router.delete("/oferta/deleteOferta/:id",authenticate(), ofertaController.deleteOferta);
 
+/**
+ * @swagger
+ * /oferta/filterOfertas:
+ *   get:
+ *     summary: Filtra ofertas según criterios específicos
+ *     tags:
+ *       - Oferta
+ *     parameters:
+ *       - in: query
+ *         name: fecha_inicio
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de inicio para filtrar (YYYY-MM-DD)
+ *       - in: query
+ *         name: fecha_fin
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Fecha de fin para filtrar (YYYY-MM-DD)
+ *       - in: query
+ *         name: id_contrato
+ *         schema:
+ *           type: integer
+ *         description: ID del contrato
+ *       - in: query
+ *         name: id_usuario
+ *         schema:
+ *           type: integer
+ *         description: ID del usuario
+ *       - in: query
+ *         name: descripcion
+ *         schema:
+ *           type: string
+ *         description: Texto a buscar en la descripción
+ *     responses:
+ *       200:
+ *         description: Lista de ofertas filtradas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *             example:
+ *               - id_oferta: 1
+ *                 fecha_inicio: "2023-01-01"
+ *                 fecha_fin: "2023-01-31"
+ *                 id_contrato: 101
+ *                 descripcion: "Oferta de desarrollo de software para proyecto X."
+ *                 id_usuario: 50
+ *       500:
+ *         description: Error del servidor
+ */
+router.get("/oferta/filterOfertas",authenticate(), ofertaController.filterOfertas);
 module.exports = router; 

@@ -11,7 +11,7 @@ const contratoTrabajadorController = require("../controllers/contratoTrabajadorC
 
 /**
  * @swagger
- * /api/contratos-trabajadores:
+ * /contratoTrabajador:
  *   get:
  *     summary: Obtiene todas las relaciones Contrato-Trabajador
  *     tags:
@@ -21,14 +21,25 @@ const contratoTrabajadorController = require("../controllers/contratoTrabajadorC
  *         description: Lista de relaciones Contrato-Trabajador obtenida exitosamente
  *         content:
  *           application/json:
+ *             example:
+ *               - id_contrato_trabajador: 1
+ *                 id_contrato: 2
+ *                 id_trabajador_autorizado: 3
+ *                 createdAt: "2024-03-20T10:00:00.000Z"
+ *                 updatedAt: "2024-03-20T10:00:00.000Z"
+ *               - id_contrato_trabajador: 2
+ *                 id_contrato: 3
+ *                 id_trabajador_autorizado: 4
+ *                 createdAt: "2024-03-21T11:00:00.000Z"
+ *                 updatedAt: "2024-03-21T11:00:00.000Z"
  *       500:
  *         description: Error del servidor
  */
-router.get("/api/contratos-trabajadores", contratoTrabajadorController.getAllContratoTrabajadores);
+router.get("/contratoTrabajador", contratoTrabajadorController.getAllContratoTrabajadores);
 
 /**
  * @swagger
- * /api/contratos-trabajadores/{id}:
+ * /contratoTrabajador/{id}:
  *   get:
  *     summary: Obtiene una relación Contrato-Trabajador por ID
  *     tags:
@@ -45,16 +56,22 @@ router.get("/api/contratos-trabajadores", contratoTrabajadorController.getAllCon
  *         description: Relación Contrato-Trabajador obtenida exitosamente
  *         content:
  *           application/json:
+ *             example:
+ *               id_contrato_trabajador: 1
+ *               id_contrato: 2
+ *               id_trabajador_autorizado: 3
+ *               createdAt: "2024-03-20T10:00:00.000Z"
+ *               updatedAt: "2024-03-20T10:00:00.000Z"
  *       404:
  *         description: Relación Contrato-Trabajador no encontrada
  *       500:
  *         description: Error del servidor
  */
-router.get("/api/contratos-trabajadores/:id", contratoTrabajadorController.getContratoTrabajadorById);
+router.get("/contratoTrabajador/:id", contratoTrabajadorController.getContratoTrabajadorById);
 
 /**
  * @swagger
- * /api/contratos-trabajadores:
+ * /contratoTrabajador/CreateContratoTrabajador:
  *   post:
  *     summary: Crea una nueva relación Contrato-Trabajador
  *     tags:
@@ -63,26 +80,44 @@ router.get("/api/contratos-trabajadores/:id", contratoTrabajadorController.getCo
  *       required: true
  *       content:
  *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id_contrato
+ *               - id_trabajador_autorizado
+ *             properties:
+ *               id_contrato:
+ *                 type: integer
+ *                 description: ID del contrato
+ *                 example: 2
+ *               id_trabajador_autorizado:
+ *                 type: integer
+ *                 description: ID del trabajador autorizado
+ *                 example: 3
  *           example:
- *             id_contrato: 1
- *             id_trabajador: 1
- *             fecha_asociacion: "2023-01-01"
- *             activo: true
+ *             id_contrato: 2
+ *             id_trabajador_autorizado: 3
  *     responses:
  *       201:
  *         description: Relación Contrato-Trabajador creada exitosamente
  *         content:
  *           application/json:
+ *             example:
+ *               id_contrato_trabajador: 1
+ *               id_contrato: 2
+ *               id_trabajador_autorizado: 3
+ *               createdAt: "2024-03-20T10:00:00.000Z"
+ *               updatedAt: "2024-03-20T10:00:00.000Z"
  *       400:
  *         description: Datos de entrada inválidos
  *       500:
  *         description: Error del servidor
  */
-router.post("/api/contratos-trabajadores", contratoTrabajadorController.createContratoTrabajador);
+router.post("/contratoTrabajador/CreateContratoTrabajador", contratoTrabajadorController.createContratoTrabajador);
 
 /**
  * @swagger
- * /api/contratos-trabajadores/{id}:
+ * /contratoTrabajador/UpdateContratoTrabajador/{id}:
  *   put:
  *     summary: Actualiza una relación Contrato-Trabajador existente
  *     tags:
@@ -98,16 +133,31 @@ router.post("/api/contratos-trabajadores", contratoTrabajadorController.createCo
  *       required: true
  *       content:
  *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id_contrato:
+ *                 type: integer
+ *                 description: ID del contrato
+ *                 example: 2
+ *               id_trabajador_autorizado:
+ *                 type: integer
+ *                 description: ID del trabajador autorizado
+ *                 example: 3
  *           example:
- *             id_contrato: 1
- *             id_trabajador: 1
- *             fecha_asociacion: "2023-02-01"
- *             activo: false
+ *             id_contrato: 2
+ *             id_trabajador_autorizado: 3
  *     responses:
  *       200:
  *         description: Relación Contrato-Trabajador actualizada exitosamente
  *         content:
  *           application/json:
+ *             example:
+ *               id_contrato_trabajador: 1
+ *               id_contrato: 2
+ *               id_trabajador_autorizado: 3
+ *               createdAt: "2024-03-20T10:00:00.000Z"
+ *               updatedAt: "2024-03-20T10:00:00.000Z"
  *       400:
  *         description: Datos de entrada inválidos
  *       404:
@@ -115,11 +165,11 @@ router.post("/api/contratos-trabajadores", contratoTrabajadorController.createCo
  *       500:
  *         description: Error del servidor
  */
-router.put("/api/contratos-trabajadores/:id", contratoTrabajadorController.updateContratoTrabajador);
+router.put("/contratoTrabajador/UpdateContratoTrabajador/:id", contratoTrabajadorController.updateContratoTrabajador);
 
 /**
  * @swagger
- * /api/contratos-trabajadores/{id}:
+ * /contratoTrabajador/DeleteContratoTrabajador{id}:
  *   delete:
  *     summary: Elimina una relación Contrato-Trabajador
  *     tags:
@@ -139,6 +189,6 @@ router.put("/api/contratos-trabajadores/:id", contratoTrabajadorController.updat
  *       500:
  *         description: Error del servidor
  */
-router.delete("/api/contratos-trabajadores/:id", contratoTrabajadorController.deleteContratoTrabajador);
+router.delete("/contratoTrabajador/DeleteContratoTrabajador:id", contratoTrabajadorController.deleteContratoTrabajador);
 
 module.exports = router; 

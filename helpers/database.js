@@ -10,13 +10,7 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
-    logging: false,
-    pool: {
-      max: parseInt(process.env.SEQUELIZE_POOL_MAX),
-      min: parseInt(process.env.SEQUELIZE_POOL_MIN),
-      acquire: parseInt(process.env.SEQUELIZE_POOL_ACQUIRE),
-      idle: parseInt(process.env.SEQUELIZE_POOL_IDLE)
-    }
+    logging: false
   }
 );
 

@@ -28,7 +28,7 @@ const TrabajadorAutorizado = sequelize.define("trabajador_autorizado", {
   },
   num_telefono: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   }
 }, {
   timestamps: true

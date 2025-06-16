@@ -27,7 +27,7 @@ const Oferta = sequelize.define("oferta", {
   },
   id_contrato: {
     type: DataTypes.INTEGER,
-    allowNull: true,
+    allowNull: false,
   },
   descripcion: {
     type: DataTypes.TEXT,
