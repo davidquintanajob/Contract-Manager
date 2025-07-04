@@ -6,5 +6,10 @@ export default defineNuxtConfig({
   css: ['~/assets/css/tailwind.css'],
   plugins: [
     { src: '~/plugins/leaflet.js', ssr: false }, // Solo en el cliente
-  ]
+  ],
+  runtimeConfig: {
+    public: {
+      backendHost: process.env.NUXT_PUBLIC_BACKEND_HOST
+    }
+  }
 })
