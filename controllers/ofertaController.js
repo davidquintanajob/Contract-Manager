@@ -123,6 +123,24 @@ const OfertaController = {
   deleteOferta: async (req, res) => {
     try {
       const { id } = req.params;
+      const oferta = await OfertaService.getOfertaById(id);
+      if (!oferta) {
+        return res.status(404).json({
+          message: "Oferta no encontrada",
+          error: "Oferta no encontrada"
+        });
+      }
+      // Validar integridad referencial
+      if (!oferta.contrato) {
+        return res.status(400).json({
+          message: "No se puede eliminar la oferta porque no está asociada a un contrato válido."
+        });
+      }
+      if (!oferta.usuario) {
+        return res.status(400).json({
+          message: "No se puede eliminar la oferta porque no está asociada a un usuario válido."
+        });
+      }
       await OfertaService.deleteOferta(id);
       
       res.status(200).json({
@@ -151,7 +169,7 @@ const OfertaController = {
    */
   filterOfertas: async (req, res) => {
     try {
-      const filters = req.query;
+      const filters = req.body;
       const ofertas = await OfertaService.filterOfertas(filters);
       res.json(ofertas);
     } catch (error) {

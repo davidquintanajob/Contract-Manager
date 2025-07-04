@@ -137,11 +137,11 @@ const ContratoService = {
     }
 
     // Validar número consecutivo único por año
-    if (data.num_consecutivo) {
+    if (data.num_consecutivo && data.fecha_inicio) {
       const fechaInicio = new Date(data.fecha_inicio);
-      const year = fechaInicio.getFullYear();
-      const startOfYear = new Date(year, 0, 1);
-      const endOfYear = new Date(year, 11, 31);
+      const year = fechaInicio.getUTCFullYear();
+      const startOfYear = new Date(Date.UTC(year, 0, 1, 0, 0, 0));
+      const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59));
 
       const whereClause = {
         num_consecutivo: data.num_consecutivo,
@@ -188,6 +188,7 @@ const ContratoService = {
   create: async (data) => {
     // Validar datos
     const errors = await ContratoService.validateContrato(data);
+    
     if (errors.length > 0) {
       throw new Error(errors.join(', '));
     }

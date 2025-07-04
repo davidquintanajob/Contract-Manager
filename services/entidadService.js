@@ -114,14 +114,6 @@ const EntidadService = {
       }
     }
 
-    // Validar código REO si está presente
-    if (data.codigo_reo) {
-      const reoRegex = /^[A-Z0-9]{6,10}$/;
-      if (!reoRegex.test(data.codigo_reo)) {
-        errors.push('El formato del código REO no es válido');
-      }
-    }
-
     return errors;
   },
 

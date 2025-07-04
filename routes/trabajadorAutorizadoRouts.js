@@ -363,7 +363,7 @@ router.post("/trabajadorAutorizado/CreateTrabajadorAutorizado",authenticate(), t
  *                   type: string
  *                   example: "Error de conexión con la base de datos"
  */
-router.put("/trabajadorAutorizado/UpdateTrabajadorAutorizado:id",authenticate(), trabajadorAutorizadoController.updateTrabajadorAutorizado);
+router.put("/trabajadorAutorizado/UpdateTrabajadorAutorizado/:id",authenticate(), trabajadorAutorizadoController.updateTrabajadorAutorizado);
 
 /**
  * @swagger

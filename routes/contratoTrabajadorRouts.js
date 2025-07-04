@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const contratoTrabajadorController = require("../controllers/contratoTrabajadorController.js");
+const authenticate = require("../helpers/authenticate");
 
 /**
  * @swagger
@@ -35,7 +36,7 @@ const contratoTrabajadorController = require("../controllers/contratoTrabajadorC
  *       500:
  *         description: Error del servidor
  */
-router.get("/contratoTrabajador", contratoTrabajadorController.getAllContratoTrabajadores);
+router.get("/contratoTrabajador", authenticate(), contratoTrabajadorController.getAllContratoTrabajadores);
 
 /**
  * @swagger
@@ -67,7 +68,7 @@ router.get("/contratoTrabajador", contratoTrabajadorController.getAllContratoTra
  *       500:
  *         description: Error del servidor
  */
-router.get("/contratoTrabajador/:id", contratoTrabajadorController.getContratoTrabajadorById);
+router.get("/contratoTrabajador/:id", authenticate(), contratoTrabajadorController.getContratoTrabajadorById);
 
 /**
  * @swagger
@@ -113,7 +114,7 @@ router.get("/contratoTrabajador/:id", contratoTrabajadorController.getContratoTr
  *       500:
  *         description: Error del servidor
  */
-router.post("/contratoTrabajador/CreateContratoTrabajador", contratoTrabajadorController.createContratoTrabajador);
+router.post("/contratoTrabajador/CreateContratoTrabajador", authenticate(), contratoTrabajadorController.createContratoTrabajador);
 
 /**
  * @swagger
@@ -165,7 +166,7 @@ router.post("/contratoTrabajador/CreateContratoTrabajador", contratoTrabajadorCo
  *       500:
  *         description: Error del servidor
  */
-router.put("/contratoTrabajador/UpdateContratoTrabajador/:id", contratoTrabajadorController.updateContratoTrabajador);
+router.put("/contratoTrabajador/UpdateContratoTrabajador/:id", authenticate(), contratoTrabajadorController.updateContratoTrabajador);
 
 /**
  * @swagger
@@ -189,6 +190,85 @@ router.put("/contratoTrabajador/UpdateContratoTrabajador/:id", contratoTrabajado
  *       500:
  *         description: Error del servidor
  */
-router.delete("/contratoTrabajador/DeleteContratoTrabajador:id", contratoTrabajadorController.deleteContratoTrabajador);
+router.delete("/contratoTrabajador/DeleteContratoTrabajador:id", authenticate(), contratoTrabajadorController.deleteContratoTrabajador);
+
+/**
+ * @swagger
+ * /contratoTrabajador/syncTrabajadorContratos:
+ *   post:
+ *     summary: Sincroniza los contratos de un trabajador autorizado
+ *     tags:
+ *       - ContratoTrabajador
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id_trabajador_autorizado:
+ *                 type: integer
+ *                 description: ID del trabajador autorizado
+ *                 example: 1
+ *               ids_contratos:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: Lista de IDs de contratos a asociar
+ *                 example: [2, 3, 4, 5]
+ *           example:
+ *             id_trabajador_autorizado: 1
+ *             ids_contratos: [2, 3, 4, 5]
+ *     responses:
+ *       200:
+ *         description: Sincronización exitosa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Sincronización exitosa
+ *                 data:
+ *                   type: array
+ *       400:
+ *         description: Error de validación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Errores de validación
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       500:
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Error al sincronizar contratos del trabajador autorizado
+ *                 error:
+ *                   type: string
+ *                   example: Error detallado
+ */
+router.post("/contratoTrabajador/syncTrabajadorContratos", authenticate(), contratoTrabajadorController.syncTrabajadorContratos);
 
 module.exports = router; 

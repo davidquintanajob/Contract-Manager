@@ -175,7 +175,8 @@ class ContratoTrabajadorService {
     try {
       const relacion = await ContratoTrabajador.findByPk(id);
       if (!relacion) {
-        throw new Error("Relación contrato-trabajador no encontrada");
+        // No lanzar error, simplemente retornar false
+        return false;
       }
 
       await relacion.destroy();
@@ -261,6 +262,40 @@ class ContratoTrabajadorService {
     } catch (error) {
       throw new Error("Error al obtener los contratos del trabajador: " + error.message);
     }
+  }
+
+  static async syncTrabajadorContratos(id_trabajador_autorizado, ids_contratos) {
+    // Validar existencia del trabajador autorizado
+    const trabajador = await TrabajadorAutorizado.findByPk(id_trabajador_autorizado);
+    if (!trabajador) {
+      throw new Error('El trabajador autorizado especificado no existe');
+    }
+    // Validar existencia de los contratos
+    const contratos = await Contrato.findAll({ where: { id_contrato: ids_contratos } });
+    if (contratos.length !== ids_contratos.length) {
+      throw new Error('Uno o más contratos especificados no existen');
+    }
+    // Obtener relaciones actuales
+    const relacionesActuales = await ContratoTrabajador.findAll({
+      where: { id_trabajador_autorizado },
+    });
+    const contratosActuales = relacionesActuales.map(r => r.id_contrato);
+    // Determinar cuáles eliminar y cuáles crear
+    const aEliminar = relacionesActuales.filter(r => !ids_contratos.includes(r.id_contrato));
+    const aCrear = ids_contratos.filter(id => !contratosActuales.includes(id));
+    // Eliminar relaciones que sobran
+    for (const rel of aEliminar) {
+      await rel.destroy();
+    }
+    // Crear relaciones que faltan
+    for (const id_contrato of aCrear) {
+      await ContratoTrabajador.create({ id_contrato, id_trabajador_autorizado });
+    }
+    // Devolver el estado final
+    return await ContratoTrabajador.findAll({
+      where: { id_trabajador_autorizado },
+      include: this.getDefaultIncludes()
+    });
   }
 }
 

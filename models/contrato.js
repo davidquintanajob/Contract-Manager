@@ -26,11 +26,7 @@ const Contrato = sequelize.define("contrato", {
     type: DataTypes.DATE,
     allowNull: false,
     validate: {
-      isAfterStart(value) {
-        if (this.fecha_inicio && value <= this.fecha_inicio) {
-          throw new Error("La fecha de fin debe ser posterior a la fecha de inicio");
-        }
-      },
+      isDate: true,
     },
   },
   num_consecutivo: {
@@ -61,7 +57,6 @@ Contrato.associate = function(models) {
   });
   Contrato.hasMany(models.Oferta, {
     foreignKey: 'id_contrato',
-    onDelete: 'CASCADE',
   });
   Contrato.belongsToMany(models.TrabajadorAutorizado, {
     through: models.ContratoTrabajador,

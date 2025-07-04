@@ -569,8 +569,6 @@ router.get("/contrato/next-consecutivo/:year", authenticate(), contratoControlle
  *                   example: Contratos filtrados exitosamente
  *                 data:
  *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Contrato'
  *                 pagination:
  *                   type: object
  *                   properties:
@@ -605,6 +603,6 @@ router.get("/contrato/next-consecutivo/:year", authenticate(), contratoControlle
  *                 error:
  *                   type: string
  */
-router.post("/contrato/filter/:page/:limit",  contratoController.filterContratos);
+router.post("/contrato/filter/:page/:limit", authenticate(),  contratoController.filterContratos);
 
 module.exports = router; 

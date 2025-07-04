@@ -230,6 +230,17 @@ const TipoContratoController = {
         });
       }
 
+      // Validar si tiene contratos asociados
+      if (existingTipoContrato.contratos && existingTipoContrato.contratos.length > 0) {
+        return res.status(400).json({
+          message: `No se puede eliminar el tipo de contrato porque está relacionado con contratos.`,
+          relaciones: existingTipoContrato.contratos.map(c => ({
+            id_contrato: c.id_contrato,
+            descripcion: c.nota || c.clasificacion || ''
+          }))
+        });
+      }
+
       await TipoContratoService.delete(Number(id));
       res.status(200).json({
         message: "Tipo de contrato eliminado exitosamente"

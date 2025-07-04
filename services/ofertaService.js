@@ -111,7 +111,17 @@ const OfertaService = {
         include: [
           {
             model: Contrato,
-            as: 'contrato'
+            as: 'contrato',
+            include: [
+              {
+                model: require('../models/entidad'),
+                as: 'entidad'
+              },
+              {
+                model: require('../models/tipo_contrato'),
+                as: 'tipoContrato'
+              }
+            ]
           },
           {
             model: Usuario,
@@ -142,7 +152,17 @@ const OfertaService = {
         include: [
           {
             model: Contrato,
-            as: 'contrato'
+            as: 'contrato',
+            include: [
+              {
+                model: require('../models/entidad'),
+                as: 'entidad'
+              },
+              {
+                model: require('../models/tipo_contrato'),
+                as: 'tipoContrato'
+              }
+            ]
           },
           {
             model: Usuario,
@@ -299,7 +319,17 @@ const OfertaService = {
         include: [
           {
             model: Contrato,
-            as: 'contrato'
+            as: 'contrato',
+            include: [
+              {
+                model: require('../models/entidad'),
+                as: 'entidad'
+              },
+              {
+                model: require('../models/tipo_contrato'),
+                as: 'tipoContrato'
+              }
+            ]
           },
           {
             model: Usuario,

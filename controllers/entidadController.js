@@ -141,13 +141,6 @@ const EntidadController = {
       errors.push("El campo activo debe ser un valor booleano (true/false)");
     }
 
-    // Validar código REO (opcional)
-    if (codigo_reo) {
-      if (!/^[A-Z0-9]{6,10}$/.test(codigo_reo)) {
-        errors.push("El código REO debe tener entre 6 y 10 caracteres alfanuméricos en mayúsculas");
-      }
-    }
-
     // Validar cuenta bancaria (opcional)
     if (cuenta_bancaria) {
       if (!/^[0-9-]{10,20}$/.test(cuenta_bancaria)) {
@@ -216,11 +209,6 @@ const EntidadController = {
       });
     }
 
-    // Validar campos requeridos
-    if (!nombre || !direccion || !telefono || !email || !tipo_entidad) {
-      errors.push("Todos los campos son obligatorios: nombre, direccion, telefono, email, tipo_entidad");
-    }
-
     // Validar formato del nombre
     if (nombre) {
       if (nombre.length < 3 || nombre.length > 100) {
@@ -258,13 +246,6 @@ const EntidadController = {
     // Validar campo activo (opcional)
     if (activo !== undefined && typeof activo !== 'boolean') {
       errors.push("El campo activo debe ser un valor booleano (true/false)");
-    }
-
-    // Validar código REO (opcional)
-    if (codigo_reo) {
-      if (!/^[A-Z0-9]{6,10}$/.test(codigo_reo)) {
-        errors.push("El código REO debe tener entre 6 y 10 caracteres alfanuméricos en mayúsculas");
-      }
     }
 
     // Validar cuenta bancaria (opcional)
@@ -309,9 +290,9 @@ const EntidadController = {
         email,
         tipo_entidad,
         activo: activo !== undefined ? activo : entidad.activo,
-        codigo_reo: codigo_reo || entidad.codigo_reo,
-        codigo_nit: codigo_nit || entidad.codigo_nit,
-        cuenta_bancaria: cuenta_bancaria || entidad.cuenta_bancaria
+        codigo_reo: codigo_reo !== undefined ? codigo_reo : entidad.codigo_reo,
+        codigo_nit: codigo_nit !== undefined ? codigo_nit : entidad.codigo_nit,
+        cuenta_bancaria: cuenta_bancaria !== undefined ? cuenta_bancaria : entidad.cuenta_bancaria
       };
 
       const updatedEntidad = await EntidadService.update(Number(id), entidadData);
@@ -350,6 +331,17 @@ const EntidadController = {
         return res.status(404).json({
           message: `No se encontró la entidad con ID: ${id}`,
           error: "Entidad no encontrada"
+        });
+      }
+
+      // Validar si tiene contratos asociados
+      if (entidad.contratos && entidad.contratos.length > 0) {
+        return res.status(400).json({
+          message: `No se puede eliminar la entidad porque está relacionada con contratos.`,
+          relaciones: entidad.contratos.map(c => ({
+            id_contrato: c.id_contrato,
+            descripcion: c.nota || c.clasificacion || ''
+          }))
         });
       }
 

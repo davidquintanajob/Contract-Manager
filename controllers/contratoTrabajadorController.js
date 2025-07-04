@@ -181,7 +181,45 @@ const ContratoTrabajadorController = {
         error: error.message
       });
     }
-  }
+  },
+  
+  syncTrabajadorContratos: async (req, res) => {
+    const { id_trabajador_autorizado, ids_contratos } = req.body;
+    const errors = [];
+
+    // Validaciones básicas
+    if (!id_trabajador_autorizado || isNaN(id_trabajador_autorizado)) {
+      errors.push("El id_trabajador_autorizado es obligatorio y debe ser un número entero");
+    }
+    if (!Array.isArray(ids_contratos)) {
+      errors.push("ids_contratos debe ser un arreglo de números");
+    } else if (ids_contratos.some(id => isNaN(id) || !Number.isInteger(Number(id)))) {
+      errors.push("Todos los ids de contratos deben ser números enteros");
+    }
+    if (errors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Errores de validación",
+        errors
+      });
+    }
+
+    try {
+      const result = await ContratoTrabajadorService.syncTrabajadorContratos(id_trabajador_autorizado, ids_contratos);
+      return res.status(200).json({
+        success: true,
+        message: "Sincronización exitosa",
+        data: result
+      });
+    } catch (error) {
+      console.error("Error en syncTrabajadorContratos:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Error al sincronizar contratos del trabajador autorizado",
+        error: error.message
+      });
+    }
+  },
 };
 
 module.exports = ContratoTrabajadorController; 

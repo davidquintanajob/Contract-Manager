@@ -42,6 +42,61 @@ const authenticate = require("../helpers/authenticate");
  */
 router.get("/oferta",authenticate(), ofertaController.getAllOfertas);
 
+/**
+ * @swagger
+ * /oferta/filterOfertas:
+ *   post:
+ *     summary: Filtra ofertas según criterios específicos
+ *     tags:
+ *       - Oferta
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fecha_inicio:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de inicio para filtrar (YYYY-MM-DD)
+ *               fecha_fin:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de fin para filtrar (YYYY-MM-DD)
+ *               id_contrato:
+ *                 type: integer
+ *                 description: ID del contrato
+ *               id_usuario:
+ *                 type: integer
+ *                 description: ID del usuario
+ *               descripcion:
+ *                 type: string
+ *                 description: Texto a buscar en la descripción
+ *           example:
+ *             fecha_inicio: "2023-01-01"
+ *             fecha_fin: "2023-01-31"
+ *             id_contrato: 101
+ *             id_usuario: 50
+ *             descripcion: "desarrollo"
+ *     responses:
+ *       200:
+ *         description: Lista de ofertas filtradas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *             example:
+ *               - id_oferta: 1
+ *                 fecha_inicio: "2023-01-01"
+ *                 fecha_fin: "2023-01-31"
+ *                 id_contrato: 101
+ *                 descripcion: "Oferta de desarrollo de software para proyecto X."
+ *                 id_usuario: 50
+ *       500:
+ *         description: Error del servidor
+ */
+router.post("/oferta/filterOfertas", authenticate(), ofertaController.filterOfertas);
 
 /**
  * @swagger
@@ -189,57 +244,4 @@ router.put("/oferta/updateOferta/:id",authenticate(), ofertaController.updateOfe
  */
 router.delete("/oferta/deleteOferta/:id",authenticate(), ofertaController.deleteOferta);
 
-/**
- * @swagger
- * /oferta/filterOfertas:
- *   get:
- *     summary: Filtra ofertas según criterios específicos
- *     tags:
- *       - Oferta
- *     parameters:
- *       - in: query
- *         name: fecha_inicio
- *         schema:
- *           type: string
- *           format: date
- *         description: Fecha de inicio para filtrar (YYYY-MM-DD)
- *       - in: query
- *         name: fecha_fin
- *         schema:
- *           type: string
- *           format: date
- *         description: Fecha de fin para filtrar (YYYY-MM-DD)
- *       - in: query
- *         name: id_contrato
- *         schema:
- *           type: integer
- *         description: ID del contrato
- *       - in: query
- *         name: id_usuario
- *         schema:
- *           type: integer
- *         description: ID del usuario
- *       - in: query
- *         name: descripcion
- *         schema:
- *           type: string
- *         description: Texto a buscar en la descripción
- *     responses:
- *       200:
- *         description: Lista de ofertas filtradas
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *             example:
- *               - id_oferta: 1
- *                 fecha_inicio: "2023-01-01"
- *                 fecha_fin: "2023-01-31"
- *                 id_contrato: 101
- *                 descripcion: "Oferta de desarrollo de software para proyecto X."
- *                 id_usuario: 50
- *       500:
- *         description: Error del servidor
- */
-router.get("/oferta/filterOfertas",authenticate(), ofertaController.filterOfertas);
 module.exports = router; 

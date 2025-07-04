@@ -40,7 +40,7 @@ const Usuario = sequelize.define("usuario", {
 Usuario.associate = function(models) {
   Usuario.hasMany(models.Oferta, {
     foreignKey: 'id_usuario',
-    onDelete: 'CASCADE',
+    // onDelete: 'CASCADE',
   });
 };
 

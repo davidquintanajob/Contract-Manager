@@ -118,9 +118,11 @@ const ContratoController = {
       });
     } catch (error) {
       console.error("Error al crear el contrato:", error);
+      // Mostrar el mensaje completo y los errores internos de Sequelize si existen
       return res.status(400).json({
         message: "Error al crear el contrato",
-        error: error.message
+        error: error.message,
+        details: error.errors || error
       });
     }
   },
@@ -174,9 +176,11 @@ const ContratoController = {
       });
     } catch (error) {
       console.error("Error al actualizar el contrato:", error);
+      // Mostrar el mensaje completo y los errores internos de Sequelize si existen
       return res.status(400).json({
         message: "Error al actualizar el contrato",
-        error: error.message
+        error: error.message,
+        details: error.errors || error
       });
     }
   },
@@ -198,6 +202,35 @@ const ContratoController = {
     }
 
     try {
+      const contrato = await ContratoService.getById(Number(id));
+      if (!contrato) {
+        return res.status(404).json({
+          message: `No se encontró el contrato con ID: ${id}`,
+          error: "Contrato no encontrado"
+        });
+      }
+
+      // Validar si tiene ofertas asociadas
+      if (contrato.oferta && contrato.oferta.length > 0) {
+        return res.status(400).json({
+          message: `No se puede eliminar el contrato porque está relacionado con ofertas.`,
+          relaciones: contrato.oferta.map(o => ({
+            id_oferta: o.id_oferta,
+            descripcion: o.descripcion
+          }))
+        });
+      }
+      // Validar si tiene trabajadores autorizados asociados
+      if (contrato.trabajadoresAutorizados && contrato.trabajadoresAutorizados.length > 0) {
+        return res.status(400).json({
+          message: `No se puede eliminar el contrato porque está relacionado con trabajadores autorizados.`,
+          relaciones: contrato.trabajadoresAutorizados.map(t => ({
+            id_trabajador_autorizado: t.id_trabajador_autorizado,
+            nombre: t.nombre
+          }))
+        });
+      }
+
       const deleted = await ContratoService.delete(Number(id));
       if (!deleted) {
         return res.status(404).json({

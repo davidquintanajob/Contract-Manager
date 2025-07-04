@@ -203,6 +203,26 @@ const TrabajadorAutorizadoController = {
         });
       }
 
+      const trabajador = await TrabajadorAutorizadoService.getById(id);
+      if (!trabajador) {
+        return res.status(404).json({
+          success: false,
+          message: "Trabajador autorizado no encontrado"
+        });
+      }
+
+      // Validar si tiene contratos asociados
+      if (trabajador.contratos && trabajador.contratos.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "No se puede eliminar el trabajador autorizado porque está relacionado con contratos.",
+          relaciones: trabajador.contratos.map(c => ({
+            id_contrato: c.id_contrato,
+            descripcion: c.nota || c.clasificacion || ''
+          }))
+        });
+      }
+
       await TrabajadorAutorizadoService.delete(id);
       res.status(200).json({
         success: true,

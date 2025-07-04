@@ -252,6 +252,17 @@ const deleteUsuario = async (req, res) => {
             });
         }
 
+        // Validar si tiene ofertas asociadas
+        if (usuario.ofertas && usuario.ofertas.length > 0) {
+            return res.status(400).json({
+                message: "No se puede eliminar el usuario porque está relacionado con ofertas.",
+                relaciones: usuario.ofertas.map(o => ({
+                    id_oferta: o.id_oferta,
+                    descripcion: o.descripcion
+                }))
+            });
+        }
+
         // Verificar si el usuario está activo
         if (!usuario.activo) {
             return res.status(400).json({ 
@@ -308,7 +319,7 @@ const login = async (req, res) => {
         rol: usuario.rol
       },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '3h' }
     );
 
     const refreshToken = jwt.sign({ userId: usuario.id_usuario }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '24h' });
@@ -352,11 +363,6 @@ const filterUsuarios = async (req, res) => {
   }
   if (rol) {
     filterCriteria.rol = rol;
-  }
-
-  // Validar que al menos un criterio de filtro fue proporcionado
-  if (Object.keys(filterCriteria).length === 0) {
-    return res.status(400).json({ message: "Se debe proporcionar al menos un criterio de filtro (nombre, nombre_usuario, cargo o rol)." });
   }
 
   try {

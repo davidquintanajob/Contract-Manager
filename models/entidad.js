@@ -10,7 +10,7 @@ const Entidad = sequelize.define("entidad", {
   nombre: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    unique: false,
   },
   direccion: {
     type: DataTypes.STRING,
@@ -58,7 +58,7 @@ const Entidad = sequelize.define("entidad", {
 Entidad.associate = function(models) {
   Entidad.hasMany(models.Contrato, {
     foreignKey: 'id_entidad',
-    onDelete: 'CASCADE',
+    // onDelete: 'CASCADE',
   });
 };
 
