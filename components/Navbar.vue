@@ -69,9 +69,10 @@
 
                 <!-- Botones de navegación (Escritorio) -->
                 <div class="hidden md:flex flex-col space-y-4 w-full md:mt-4">
-                    <a v-for="(option, index) in options" :key="index" :href="option.link"
+                    <a v-for="(option, index) in options" :key="index"
+                        href="#"
                         class="text-white flex items-center px-4 py-3 rounded-lg border border-white transition group hover:bg-accent hover:text-black"
-                        @click="isNavCollapsed = true">
+                        @click.prevent="handleNavigation(option.link); isNavCollapsed = true">
                         <img :src="option.src" alt=""
                             class="w-6 h-6 mr-2 invert group-hover:invert-0 transition-all duration-300">
                         <span class="text-[15px]">{{ option.label }}</span>
@@ -106,9 +107,10 @@
             <!-- Menú desplegable (Móvil) - SIN CAMBIOS -->
             <div v-if="isMenuOpen"
                 class="md:hidden fixed top-16 left-0 w-full bg-secondary p-4 space-y-2 transform transition-all duration-300 ease-in-out">
-                <a v-for="(option, index) in options" :key="index" :href="option.link"
+                <a v-for="(option, index) in options" :key="index"
+                    href="#"
                     class="flex items-center block text-white text-center py-2 rounded-lg transition group hover:bg-accent"
-                    @click="isMenuOpen = false">
+                    @click.prevent="handleNavigation(option.link); isMenuOpen = false">
                     <img :src="option.src" alt=""
                         class="w-6 h-6 mr-2 invert group-hover:invert-0 transition-all duration-300">
                     <span>{{ option.label }}</span>
@@ -158,13 +160,27 @@ function goHome() {
 
 function handleLogout() {
     localStorage.clear();
-    navigateTo('/');
+    console.log("Cerrando seción");
+    if (window.location.pathname === '/') {
+        window.location.reload();
+    } else {
+        navigateTo('/');
+    }
 }
 
 function handlePerfilClick() {
     const usuario = localStorage.getItem('usuario');
     if (usuario) {
         navigateTo('/perfil');
+    } else {
+        navigateTo('/login');
+    }
+}
+
+function handleNavigation(link) {
+    const token = localStorage.getItem('token');
+    if (token) {
+        navigateTo(link);
     } else {
         navigateTo('/login');
     }
