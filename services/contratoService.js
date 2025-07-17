@@ -176,6 +176,44 @@ const ContratoService = {
       }
     }
 
+    // Validar que no exista un contrato vigente con la misma entidad y tipo de contrato
+    if (data.id_entidad && data.id_tipo_contrato) {
+      const fechaActual = new Date();
+      
+      const whereClause = {
+        id_entidad: data.id_entidad,
+        id_tipo_contrato: data.id_tipo_contrato,
+        fecha_fin: {
+          [Op.gt]: fechaActual // Solo contratos que no han vencido
+        }
+      };
+
+      // Excluir el contrato actual en caso de actualización
+      if (excludeId) {
+        whereClause.id_contrato = { [Op.ne]: excludeId };
+      }
+
+      const contratoVigente = await Contrato.findOne({
+        where: whereClause,
+        include: [
+          {
+            model: Entidad,
+            as: 'entidad',
+            attributes: ['nombre']
+          },
+          {
+            model: TipoContrato,
+            as: 'tipoContrato',
+            attributes: ['nombre']
+          }
+        ]
+      });
+
+      if (contratoVigente) {
+        errors.push(`Ya existe un contrato vigente para la entidad "${contratoVigente.entidad.nombre}" con el tipo de contrato "${contratoVigente.tipoContrato.nombre}"`);
+      }
+    }
+
     return errors;
   },
 

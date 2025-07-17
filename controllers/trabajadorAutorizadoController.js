@@ -80,9 +80,6 @@ const TrabajadorAutorizadoController = {
       if (!trabajadorData.nombre) {
         errors.push("El nombre es obligatorio");
       }
-      if (!trabajadorData.cargo) {
-        errors.push("El cargo es obligatorio");
-      }
       if (!trabajadorData.carnet_identidad) {
         errors.push("El carnet de identidad es obligatorio");
       }

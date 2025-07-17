@@ -31,12 +31,14 @@ const authenticate = require("../helpers/authenticate");
  *                 id_contrato: 101
  *                 descripcion: "Oferta de desarrollo de software para proyecto X."
  *                 id_usuario: 50
+ *                 estado: "vigente"
  *               - id_oferta: 2
  *                 fecha_inicio: "2023-02-15"
  *                 fecha_fin: "2023-03-15"
  *                 id_contrato: 102
  *                 descripcion: "Oferta de consultoría de TI."
  *                 id_usuario: 51
+ *                 estado: "facturada"
  *       500:
  *         description: Error del servidor
  */
@@ -73,12 +75,17 @@ router.get("/oferta",authenticate(), ofertaController.getAllOfertas);
  *               descripcion:
  *                 type: string
  *                 description: Texto a buscar en la descripción
+ *               estado:
+ *                 type: string
+ *                 enum: [vigente, facturada, vencida]
+ *                 description: Estado de la oferta (opcional)
  *           example:
  *             fecha_inicio: "2023-01-01"
  *             fecha_fin: "2023-01-31"
  *             id_contrato: 101
  *             id_usuario: 50
  *             descripcion: "desarrollo"
+ *             estado: "vigente"
  *     responses:
  *       200:
  *         description: Lista de ofertas filtradas
@@ -126,6 +133,7 @@ router.post("/oferta/filterOfertas", authenticate(), ofertaController.filterOfer
  *               id_contrato: 101
  *               descripcion: "Oferta de desarrollo de software para proyecto X."
  *               id_usuario: 50
+ *               estado: "vigente"
  *       404:
  *         description: Oferta no encontrada
  *       500:
@@ -152,6 +160,7 @@ router.get("/oferta/:id",authenticate(), ofertaController.getOfertaById);
  *               id_contrato: 1
  *               descripcion: "Se busca desarrollador con experiencia en Node.js y React."
  *               id_usuario: 1
+ *               estado: "vigente"
  *     responses:
  *       201:
  *         description: Oferta creada exitosamente
@@ -165,6 +174,7 @@ router.get("/oferta/:id",authenticate(), ofertaController.getOfertaById);
  *               id_contrato: 1
  *               descripcion: "Se busca desarrollador con experiencia en Node.js y React."
  *               id_usuario: 1
+ *               estado: "vigente"
  *       400:
  *         description: Datos de entrada inválidos
  *       500:
@@ -198,6 +208,7 @@ router.post("/oferta/CreateOferta",authenticate(), ofertaController.createOferta
  *               id_contrato: 1
  *               descripcion: "Actualización: Más énfasis en microservicios."
  *               id_usuario: 1
+ *               estado: "facturada"
  *     responses:
  *       200:
  *         description: Oferta actualizada exitosamente
@@ -211,6 +222,7 @@ router.post("/oferta/CreateOferta",authenticate(), ofertaController.createOferta
  *               id_contrato: 1
  *               descripcion: "Actualización: Más énfasis en microservicios."
  *               id_usuario: 1
+ *               estado: "facturada"
  *       400:
  *         description: Datos de entrada inválidos
  *       404:

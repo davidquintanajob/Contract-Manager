@@ -69,6 +69,18 @@ const OfertaController = {
   createOferta: async (req, res) => {
     try {
       const ofertaData = req.body;
+      
+      // Validar estado si está presente
+      if (ofertaData.estado !== undefined && ofertaData.estado !== null) {
+        const estadosValidos = ['vigente', 'facturada', 'vencida'];
+        if (!estadosValidos.includes(ofertaData.estado)) {
+          return res.status(400).json({
+            message: "Error de validación",
+            error: "El estado debe ser uno de: vigente, facturada, vencida"
+          });
+        }
+      }
+      
       const oferta = await OfertaService.createOferta(ofertaData);
       
       res.status(201).json({
@@ -77,6 +89,15 @@ const OfertaController = {
       });
     } catch (error) {
       console.error('Error en el controlador al crear oferta:', error);
+      
+      // Manejar específicamente el error de contrato vencido
+      if (error.message.includes('contrato vencido')) {
+        return res.status(400).json({
+          message: "No se puede crear la oferta",
+          error: error.message
+        });
+      }
+      
       res.status(400).json({
         message: "Error al crear oferta",
         error: error.message
@@ -93,6 +114,18 @@ const OfertaController = {
     try {
       const { id } = req.params;
       const ofertaData = req.body;
+      
+      // Validar estado si está presente
+      if (ofertaData.estado !== undefined && ofertaData.estado !== null) {
+        const estadosValidos = ['vigente', 'facturada', 'vencida'];
+        if (!estadosValidos.includes(ofertaData.estado)) {
+          return res.status(400).json({
+            message: "Error de validación",
+            error: "El estado debe ser uno de: vigente, facturada, vencida"
+          });
+        }
+      }
+      
       const oferta = await OfertaService.updateOferta(id, ofertaData);
       
       res.status(200).json({
@@ -101,6 +134,15 @@ const OfertaController = {
       });
     } catch (error) {
       console.error('Error en el controlador al actualizar oferta:', error);
+      
+      // Manejar específicamente el error de contrato vencido
+      if (error.message.includes('contrato vencido')) {
+        return res.status(400).json({
+          message: "No se puede actualizar la oferta",
+          error: error.message
+        });
+      }
+      
       if (error.message === 'Oferta no encontrada') {
         res.status(404).json({
           message: "Oferta no encontrada",

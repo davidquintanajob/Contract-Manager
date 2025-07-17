@@ -37,6 +37,17 @@ const Oferta = sequelize.define("oferta", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  estado: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isIn: {
+        args: [['vigente', 'facturada', 'vencida']],
+        msg: 'El estado debe ser uno de: vigente, facturada, vencida'
+      }
+    },
+    defaultValue: null
+  },
 }, {
   timestamps: true,
 });

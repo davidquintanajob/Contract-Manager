@@ -62,6 +62,14 @@ const OfertaService = {
         const contrato = await Contrato.findByPk(idContrato);
         if (!contrato) {
           errors.push('El contrato especificado no existe');
+        } else {
+          // Validar que el contrato no esté vencido
+          const fechaActual = new Date();
+          const fechaFinContrato = new Date(contrato.fecha_fin);
+          
+          if (fechaActual > fechaFinContrato) {
+            errors.push('No se puede crear/actualizar una oferta para un contrato vencido');
+          }
         }
       }
     }
@@ -86,6 +94,14 @@ const OfertaService = {
       errors.push('La descripción es requerida');
     } else if (typeof data.descripcion !== 'string' || data.descripcion.trim().length === 0) {
       errors.push('La descripción debe ser un texto no vacío');
+    }
+
+    // Validar estado si está presente
+    if (data.estado !== undefined && data.estado !== null) {
+      const estadosValidos = ['vigente', 'facturada', 'vencida'];
+      if (!estadosValidos.includes(data.estado)) {
+        errors.push('El estado debe ser uno de: vigente, facturada, vencida');
+      }
     }
 
     return errors;

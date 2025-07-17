@@ -90,21 +90,7 @@ const EntidadService = {
       errors.push('El nombre de la entidad es requerido');
     }
 
-    // Validar email si está presente
-    if (data.email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(data.email)) {
-        errors.push('El formato del email no es válido');
-      }
-    }
 
-    // Validar teléfono si está presente
-    if (data.telefono) {
-      const phoneRegex = /^[0-9-+() ]{8,15}$/;
-      if (!phoneRegex.test(data.telefono)) {
-        errors.push('El formato del teléfono no es válido');
-      }
-    }
 
     // Validar cuenta bancaria si está presente
     if (data.cuenta_bancaria) {
@@ -204,24 +190,7 @@ const EntidadService = {
     }
   },
 
-  /**
-   * Verificar si existe una entidad con el mismo email
-   * @param {string} email - Email de la entidad a verificar
-   * @param {number} [excludeId] - ID de la entidad a excluir (para actualizaciones)
-   * @returns {Promise<boolean>} true si existe, false si no
-   */
-  emailExists: async (email, excludeId = null) => {
-    try {
-      const whereClause = { email };
-      if (excludeId) {
-        whereClause.id_entidad = { [Op.ne]: excludeId };
-      }
-      const entidad = await Entidad.findOne({ where: whereClause });
-      return !!entidad;
-    } catch (error) {
-      throw new Error(`Error al verificar la existencia del email: ${error.message}`);
-    }
-  },
+
 
   /**
    * Filtra entidades por múltiples criterios con paginación

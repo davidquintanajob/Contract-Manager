@@ -9,7 +9,7 @@ const TrabajadorAutorizado = sequelize.define("trabajador_autorizado", {
   },
   cargo: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   nombre: {
     type: DataTypes.STRING,

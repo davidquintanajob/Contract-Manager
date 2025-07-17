@@ -118,6 +118,15 @@ const ContratoController = {
       });
     } catch (error) {
       console.error("Error al crear el contrato:", error);
+      
+      // Manejar específicamente el error de contrato vigente duplicado
+      if (error.message.includes('Ya existe un contrato vigente')) {
+        return res.status(400).json({
+          message: "No se puede crear el contrato",
+          error: error.message
+        });
+      }
+      
       // Mostrar el mensaje completo y los errores internos de Sequelize si existen
       return res.status(400).json({
         message: "Error al crear el contrato",
@@ -176,6 +185,15 @@ const ContratoController = {
       });
     } catch (error) {
       console.error("Error al actualizar el contrato:", error);
+      
+      // Manejar específicamente el error de contrato vigente duplicado
+      if (error.message.includes('Ya existe un contrato vigente')) {
+        return res.status(400).json({
+          message: "No se puede actualizar el contrato",
+          error: error.message
+        });
+      }
+      
       // Mostrar el mensaje completo y los errores internos de Sequelize si existen
       return res.status(400).json({
         message: "Error al actualizar el contrato",

@@ -26,10 +26,7 @@ const Entidad = sequelize.define("entidad", {
     type: DataTypes.STRING,
     allowNull: true,
     unique: false,
-    validate: {
-      isEmail: true,
-    },
-    defaultValue: ""
+    defaultValue: null
   },
   cuenta_bancaria: {
     type: DataTypes.STRING,

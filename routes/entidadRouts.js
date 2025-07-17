@@ -174,7 +174,7 @@ router.get("/entidad/:id",authenticate(), entidadController.getEntidadById);
  *               email:
  *                 type: string
  *                 format: email
- *                 description: Correo electrónico
+ *                 description: Correo electrónico (opcional) (opcional)
  *               cuenta_bancaria:
  *                 type: string
  *                 description: Número de cuenta bancaria

@@ -81,18 +81,8 @@ const EntidadController = {
     const errors = [];
 
     // Validar campos requeridos
-    if (!nombre || !direccion || !telefono || !email || !tipo_entidad) {
-      errors.push("Todos los campos son obligatorios: nombre, direccion, telefono, email, tipo_entidad");
-    }
-
-    // Validar formato del nombre
-    if (nombre) {
-      if (nombre.length < 3 || nombre.length > 100) {
-        errors.push("El nombre debe tener entre 3 y 100 caracteres");
-      }
-      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s.,&-]+$/.test(nombre)) {
-        errors.push("El nombre solo puede contener letras, números, espacios y los caracteres: ., & -");
-      }
+    if (!nombre || !direccion || !telefono || !tipo_entidad) {
+      errors.push("Todos los campos son obligatorios: nombre, direccion, telefono, tipo_entidad");
     }
 
     // Validar formato de la dirección
@@ -112,27 +102,10 @@ const EntidadController = {
       }
     }
 
-    // Validar formato del email
-    if (email) {
+    // Validar formato del email solo si se está proporcionando
+    if (email && email.trim() !== '') {
       if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
         errors.push("El email debe tener un formato válido (ejemplo: usuario@dominio.com)");
-      }
-
-      // Verificar si el email ya existe
-      try {
-        const emailExists = await EntidadService.emailExists(email);
-        if (emailExists) {
-          return res.status(400).json({
-            message: "Ya existe una entidad con ese email",
-            error: "Email duplicado"
-          });
-        }
-      } catch (error) {
-        console.error("Error al verificar el email:", error);
-        return res.status(500).json({
-          message: "Error al crear la entidad",
-          error: error.message
-        });
       }
     }
 
@@ -214,9 +187,6 @@ const EntidadController = {
       if (nombre.length < 3 || nombre.length > 100) {
         errors.push("El nombre debe tener entre 3 y 100 caracteres");
       }
-      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s.,&-]+$/.test(nombre)) {
-        errors.push("El nombre solo puede contener letras, números, espacios y los caracteres: ., & -");
-      }
     }
 
     // Validar formato de la dirección
@@ -224,20 +194,10 @@ const EntidadController = {
       if (direccion.length < 5 || direccion.length > 200) {
         errors.push("La dirección debe tener entre 5 y 200 caracteres");
       }
-      if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s.,#-]+$/.test(direccion)) {
-        errors.push("La dirección solo puede contener letras, números, espacios y los caracteres: ., # -");
-      }
     }
 
-    // Validar formato del teléfono
-    if (telefono) {
-      if (!/^\+?[0-9\s-]{8,15}$/.test(telefono)) {
-        errors.push("El teléfono debe tener entre 8 y 15 dígitos y puede incluir +, espacios y guiones");
-      }
-    }
-
-    // Validar formato del email
-    if (email) {
+    // Validar formato del email solo si se está proporcionando
+    if (email && email.trim() !== '') {
       if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
         errors.push("El email debe tener un formato válido (ejemplo: usuario@dominio.com)");
       }
@@ -272,16 +232,7 @@ const EntidadController = {
         });
       }
 
-      // Verificar si el nuevo email ya existe en otra entidad
-      if (email && email !== entidad.email) {
-        const emailExists = await EntidadService.emailExists(email, Number(id));
-        if (emailExists) {
-          return res.status(400).json({
-            message: "Ya existe una entidad con ese email",
-            error: "Email duplicado"
-          });
-        }
-      }
+
 
       const entidadData = {
         nombre,
