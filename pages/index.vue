@@ -62,8 +62,17 @@
 <script setup>
 import Navbar from '@/components/Navbar.vue';
 import { navigateTo } from 'nuxt/app';
+
 const goToLogin = () => navigateTo('/login');
-const goTo = (ruta) => navigateTo(`/${ruta}`);
+
+const goTo = (ruta) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        navigateTo(`/${ruta}`);
+    } else {
+        navigateTo('/login');
+    }
+};
 </script>
 
 <style scoped>

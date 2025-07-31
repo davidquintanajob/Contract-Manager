@@ -225,7 +225,7 @@ const fetchContratos = async (page = 1, append = false) => {
       // tipoContrato: filtros.value.tipoContrato
     };
     
-    const res = await fetch(`${config.public.backendHost}/contrato/filter/${page}/10`, {
+    const res = await fetch(`${config.public.backendHost}/contrato/filter/${page}/700`, {
       method: 'POST',
       headers: {
         'Authorization': token,

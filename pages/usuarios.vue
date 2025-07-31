@@ -178,7 +178,17 @@
     { key: 'nombre_usuario', label: 'Nombre de Usuario' },
     { key: 'cargo', label: 'Cargo' },
     { key: 'rol', label: 'Rol' },
-    { key: 'activo', label: 'Activo' },
+    { 
+      key: 'activo', 
+      label: 'Activo',
+      cellRenderer: (value) => {
+        if (value === true || value === 1 || value === 'true' || value === '1') {
+          return '<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Activo</span>';
+        } else {
+          return '<span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Inactivo</span>';
+        }
+      }
+    },
   ];
   
   // Variables para la paginación

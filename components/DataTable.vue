@@ -38,7 +38,10 @@
               :key="column.key"
               class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
             >
-              {{ column.format ? column.format(getNestedValue(item, column.key)) : getNestedValue(item, column.key) }}
+              <!-- Renderizado personalizado de celda -->
+              <div v-if="column.cellRenderer" v-html="column.cellRenderer(getNestedValue(item, column.key), item)"></div>
+              <!-- Renderizado normal de texto -->
+              <span v-else>{{ column.format ? column.format(getNestedValue(item, column.key)) : getNestedValue(item, column.key) }}</span>
             </td>
             <td v-if="actions" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex justify-end space-x-2">
@@ -105,7 +108,15 @@ const props = defineProps({
   columns: {
     type: Array,
     required: true,
-    // Ejemplo: [{ key: 'id', label: 'ID' }, { key: 'name', label: 'Nombre' }]
+    // Ejemplo: [
+    //   { key: 'id', label: 'ID' }, 
+    //   { key: 'name', label: 'Nombre' },
+    //   { 
+    //     key: 'estado', 
+    //     label: 'Estado',
+    //     cellRenderer: (value, item) => `<span class="px-2 py-1 rounded bg-blue-100 text-blue-800">${value}</span>`
+    //   }
+    // ]
   },
   // Array de datos a mostrar en la tabla
   items: {

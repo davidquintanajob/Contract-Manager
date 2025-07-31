@@ -91,10 +91,10 @@
               @keyup.enter="handleSearch">
               </div>
   
-          <!-- Código REO -->
+          <!-- Código REEUP -->
           <div class="w-full">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Código REO</label>
-            <input type="text" v-model="codigo_reo" placeholder="Ingrese código REO"
+            <label class="block text-sm font-medium text-gray-700 mb-1">Código REEUP</label>
+            <input type="text" v-model="codigo_reo" placeholder="Ingrese código REEUP"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               @keyup.enter="handleSearch">
             </div>

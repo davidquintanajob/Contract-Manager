@@ -54,7 +54,6 @@
               required
               :readonly="props.isViewing"
               :disabled="props.isViewing"
-              maxlength="12"
               @input="onTelefonoInput"
               placeholder="Ej: +50312345678"
             />
@@ -67,7 +66,6 @@
               v-model="formData.email"
               type="email"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
               :readonly="props.isViewing"
               :disabled="props.isViewing"
               placeholder="ejemplo@correo.com"
@@ -103,16 +101,16 @@
             />
           </div>
 
-          <!-- Código REO -->
+          <!-- Código REEUP -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Código REO</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Código REEUP</label>
             <input
-              v-model="formData.codigo_reo"
+              v-model="formData.codigo_reeup"
               type="text"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               :readonly="props.isViewing"
               :disabled="props.isViewing"
-              placeholder="Ingrese el código REO"
+              placeholder="Ingrese el código REEUP"
             />
           </div>
 
@@ -196,7 +194,7 @@ const formData = ref({
   email: '',
   cuenta_bancaria: '',
   tipo_entidad: '',
-  codigo_reo: '',
+  codigo_reeup: '',
   codigo_nit: ''
 });
 
@@ -215,7 +213,7 @@ watch(() => props.entidad, (newEntidad) => {
       email: '',
       cuenta_bancaria: '',
       tipo_entidad: '',
-      codigo_reo: '',
+      codigo_reeup: '',
       codigo_nit: ''
     };
   }
@@ -223,17 +221,15 @@ watch(() => props.entidad, (newEntidad) => {
 
 function onTelefonoInput(e) {
   let value = e.target.value;
-  // Permitir solo un + al inicio y el resto números
-  value = value.replace(/[^0-9+]/g, '');
+  // Permitir solo 0-9, + y - en cualquier posición
+  value = value.replace(/[^0-9+-]/g, '');
+  // Solo un + al inicio
   if (value.startsWith('+')) {
-    // Solo un + al inicio
     value = '+' + value.slice(1).replace(/\+/g, '');
   } else {
-    // Eliminar cualquier + que no esté al inicio
     value = value.replace(/\+/g, '');
   }
-  // Máximo 12 caracteres
-  if (value.length > 12) value = value.slice(0, 12);
+  // Ya no hay límite de caracteres
   formData.value.telefono = value;
 }
 
@@ -254,16 +250,40 @@ function onCuentaBancariaInput(e) {
 
 const handleSubmit = () => {
   errorMsg.value = '';
-  // Validación Teléfono: solo un + al inicio y el resto números, máximo 12 caracteres
-  if (!/^\+?[0-9]{1,11}$/.test(formData.value.telefono)) {
-    errorMsg.value = 'El teléfono solo puede contener un símbolo + al inicio y números, máximo 12 caracteres.';
+  
+  // Validación de campos obligatorios
+  if (!formData.value.nombre || formData.value.nombre.trim() === '') {
+    errorMsg.value = 'El nombre es obligatorio.';
     return;
   }
-  // Validación Cuenta Bancaria: formato 0000-0000-0000-0000
-  if (!/^\d{4}-\d{4}-\d{4}-\d{4}$/.test(formData.value.cuenta_bancaria)) {
+  
+  if (!formData.value.direccion || formData.value.direccion.trim() === '') {
+    errorMsg.value = 'La dirección es obligatoria.';
+    return;
+  }
+  
+  if (!formData.value.telefono || formData.value.telefono.trim() === '') {
+    errorMsg.value = 'El teléfono es obligatorio.';
+    return;
+  }
+  
+  if (!formData.value.tipo_entidad || formData.value.tipo_entidad.trim() === '') {
+    errorMsg.value = 'El tipo de entidad es obligatorio.';
+    return;
+  }
+  
+  // Validación Teléfono: solo un + al inicio, el resto números o guiones, sin límite de caracteres
+  if (!/^\+?[0-9-]+$/.test(formData.value.telefono)) {
+    errorMsg.value = 'El teléfono solo puede contener un símbolo + al inicio, números y guiones.';
+    return;
+  }
+  
+  // Validación Cuenta Bancaria: formato 0000-0000-0000-0000 (solo si se proporciona)
+  if (formData.value.cuenta_bancaria && formData.value.cuenta_bancaria.trim() !== '' && !/^\d{4}-\d{4}-\d{4}-\d{4}$/.test(formData.value.cuenta_bancaria)) {
     errorMsg.value = 'La cuenta bancaria debe tener el formato 0000-0000-0000-0000 (16 dígitos y 3 guiones).';
     return;
   }
+  
   emit('submit', formData.value);
 };
 

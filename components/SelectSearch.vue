@@ -5,11 +5,12 @@
       v-model="search"
       :placeholder="placeholder"
       class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      @focus="open = true"
-      @input="open = true"
-      @keydown.down.prevent="move(1)"
-      @keydown.up.prevent="move(-1)"
-      @keydown.enter.prevent="selectActive"
+      :disabled="disabled"
+      @focus="!disabled && (open = true)"
+      @input="!disabled && (open = true)"
+      @keydown.down.prevent="!disabled && move(1)"
+      @keydown.up.prevent="!disabled && move(-1)"
+      @keydown.enter.prevent="!disabled && selectActive"
       @blur="onBlur"
       :aria-expanded="open.toString()"
       :aria-controls="dropdownId"
@@ -44,7 +45,8 @@ const props = defineProps({
   labelKey: { type: [String, Function], required: true },
   valueKey: { type: String, required: true },
   modelValue: [String, Number],
-  placeholder: { type: String, default: 'Buscar...' }
+  placeholder: { type: String, default: 'Buscar...' },
+  disabled: { type: Boolean, default: false }
 });
 const emit = defineEmits(['update:modelValue']);
 const search = ref('');
@@ -75,13 +77,31 @@ const activeDescendantId = computed(() =>
 watch(() => props.modelValue, val => {
   if (val !== undefined && val !== null) {
     const selected = props.options.find(opt => String(opt[props.valueKey]) === String(val));
-    if (selected) search.value = getLabel(selected);
+    if (selected) {
+      search.value = getLabel(selected);
+    } else {
+      search.value = '';
+    }
+  } else {
+    search.value = '';
   }
-});
+}, { immediate: true });
+
+// También necesitamos observar cambios en las opciones para actualizar cuando se cargan
+watch(() => props.options, () => {
+  if (props.modelValue !== undefined && props.modelValue !== null) {
+    const selected = props.options.find(opt => String(opt[props.valueKey]) === String(props.modelValue));
+    if (selected) {
+      search.value = getLabel(selected);
+    }
+  }
+}, { immediate: true });
 const select = option => {
-  emit('update:modelValue', option[props.valueKey]);
-  search.value = getLabel(option);
-  open.value = false;
+  if (!props.disabled) {
+    emit('update:modelValue', option[props.valueKey]);
+    search.value = getLabel(option);
+    open.value = false;
+  }
 };
 const move = dir => {
   if (!open.value) open.value = true;

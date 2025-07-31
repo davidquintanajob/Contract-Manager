@@ -129,8 +129,31 @@ const isViewing = ref(false);
 
 const contratosColumns = [
   { key: 'num_consecutivo', label: 'Num. Consecutivo' },
-  { key: 'fecha_inicio', label: 'Fecha Inicio', format: (val) => val?.substring(0, 10) },
-  { key: 'fecha_fin', label: 'Fecha Fin', format: (val) => val?.substring(0, 10) },
+  { 
+    key: 'fecha_inicio', 
+    label: 'Fecha Inicio', 
+    cellRenderer: (value) => {
+      if (!value) return '';
+      const fechaFormateada = value.substring(0, 10);
+      return `<span class="px-2 py-1 rounded text-sm">${fechaFormateada}</span>`;
+    }
+  },
+  { 
+    key: 'fecha_fin', 
+    label: 'Fecha Fin', 
+    cellRenderer: (value) => {
+      if (!value) return '';
+      const fechaFormateada = value.substring(0, 10);
+      const fechaActual = new Date();
+      const fechaFin = new Date(value);
+      
+      // Si la fecha actual es mayor que la fecha fin, fondo rojo (vencido)
+      // Si no, fondo verde (vigente)
+      const bgColor = fechaActual > fechaFin ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
+      
+      return `<span class="px-2 py-1 rounded text-sm font-medium ${bgColor}">${fechaFormateada}</span>`;
+    }
+  },
   { key: 'clasificacion', label: 'Clasificación' },
   { key: 'entidad.nombre', label: 'Entidad' },
   { key: 'tipoContrato.nombre', label: 'Tipo de Contrato' }

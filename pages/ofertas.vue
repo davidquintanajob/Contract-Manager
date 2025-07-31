@@ -123,6 +123,13 @@
       :id_contrato="selectedOferta.id_contrato ?? selectedOferta.contrato?.id_contrato ?? null"
       @submit="handleOfertaSubmit"
     />
+    
+    <!-- Modal PDF -->
+    <ModalPDF
+      v-model:show="showModalPDF"
+      :oferta-data="ofertaParaPDF"
+      @close="showModalPDF = false"
+    />
   </div>
 </template>
 
@@ -134,6 +141,7 @@ import MessageBanner from '@/components/MessageBanner.vue';
 import ConfirmBanner from '@/components/ConfirmBanner.vue';
 import OfertaModal from '@/components/OfertaModal.vue';
 import SelectSearch from '@/components/SelectSearch.vue';
+import ModalPDF from '@/components/ModalPDF.vue';
 import * as XLSX from 'xlsx';
 
 // Variables reactivas para los elementos de búsqueda
@@ -154,6 +162,10 @@ const selectedOferta = ref({});
 const isEditing = ref(false);
 const isViewing = ref(false);
 
+// Variables para el modal PDF
+const showModalPDF = ref(false);
+const ofertaParaPDF = ref({});
+
 // Configuración de la tabla de Ofertas
 const ofertasColumns = [
   { key: 'id_oferta', label: 'ID' },
@@ -161,7 +173,25 @@ const ofertasColumns = [
   { key: 'fecha_inicio', label: 'Fecha Inicio' },
   { key: 'fecha_fin', label: 'Fecha Fin' },
   { key: 'contrato.num_consecutivo', label: 'Num Contrato' },
-  { key: 'usuario.nombre', label: 'Usuario' }
+  { key: 'usuario.nombre', label: 'Usuario' },
+  { 
+    key: 'estado', 
+    label: 'Estado',
+    cellRenderer: (value) => {
+      if (!value) return '';
+      const estado = value.toLowerCase();
+      switch (estado) {
+        case 'facturada':
+          return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Facturada</span>';
+        case 'vigente':
+          return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Vigente</span>';
+        case 'vencida':
+          return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Vencida</span>';
+        default:
+          return value;
+      }
+    }
+  }
 ];
 
 // Variables para la paginación
@@ -364,6 +394,31 @@ const ofertasActions = [
     }
   },
   {
+    name: 'Ver PDF',
+    icon: {
+      render() {
+        return h('svg', {
+          xmlns: 'http://www.w3.org/2000/svg',
+          class: 'h-5 w-5',
+          fill: 'none',
+          viewBox: '0 0 24 24',
+          stroke: 'currentColor'
+        }, [
+          h('path', {
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': '2',
+            d: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+          })
+        ])
+      }
+    },
+    handler: (item) => {
+      ofertaParaPDF.value = { ...item };
+      showModalPDF.value = true;
+    }
+  },
+  {
     name: 'Eliminar',
     icon: deleteIcon,
     iconOnly: true,
@@ -441,6 +496,32 @@ function confirmDeleteOferta() {
 // Manejar submit del modal
 const handleOfertaSubmit = async (formData) => {
   try {
+    // Determinar el estado automáticamente basándose en la selección del modal y las fechas
+    let estadoFinal;
+    
+    if (formData.estado === 'facturada') {
+      // Si está seleccionado "Facturada", el estado es "facturada"
+      estadoFinal = 'facturada';
+    } else {
+      // Si está seleccionado "No Facturada", determinar si es "vigente" o "vencida" basándose en la fecha
+      const fechaActual = new Date();
+      const fechaFin = new Date(formData.fecha_fin);
+      
+      if (fechaActual > fechaFin) {
+        // Si la fecha actual es mayor que la fecha fin, es "vencida"
+        estadoFinal = 'vencida';
+      } else {
+        // Si la fecha actual no es mayor que la fecha fin, es "vigente"
+        estadoFinal = 'vigente';
+      }
+    }
+    
+    // Crear el objeto de datos con el estado determinado automáticamente
+    const datosParaEnviar = {
+      ...formData,
+      estado: estadoFinal
+    };
+    
     const token = localStorage.getItem('token');
     const url = isEditing.value
       ? `${config.public.backendHost}/oferta/UpdateOferta/${selectedOferta.value.id_oferta}`
@@ -452,7 +533,7 @@ const handleOfertaSubmit = async (formData) => {
         'Authorization': token,
         'Accept': 'application/json'
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(datosParaEnviar)
     });
     if (response.status === 401 || response.status === 403) {
       navigateTo('/');
@@ -490,7 +571,8 @@ function exportToExcel() {
     'Fecha Inicio': item.fecha_inicio,
     'Fecha Fin': item.fecha_fin,
     'Num Contrato': item.contrato?.num_consecutivo,
-    'Usuario': item.usuario?.nombre
+    'Usuario': item.usuario?.nombre,
+    'Estado': item.estado ? item.estado.charAt(0).toUpperCase() + item.estado.slice(1) : ''
   }));
   const worksheet = XLSX.utils.json_to_sheet(exportData);
   const workbook = XLSX.utils.book_new();

@@ -25,7 +25,7 @@
           <!-- Cargo -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
-            <input v-model="formData.cargo" type="text" required :readonly="isViewing" :disabled="isViewing"
+            <input v-model="formData.cargo" type="text" :readonly="isViewing" :disabled="isViewing"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Ingrese el cargo" />
           </div>
@@ -42,9 +42,10 @@
           <!-- Teléfono -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input v-model="formData.num_telefono" type="text" required :readonly="isViewing" :disabled="isViewing"
+            <input v-model="formData.num_telefono" type="text" :readonly="isViewing" :disabled="isViewing"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ingrese el número de teléfono" />
+              placeholder="Ingrese el número de teléfono"
+              @input="onTelefonoInput" />
           </div>
         </div>
         <!-- Botones de acción -->
@@ -119,7 +120,7 @@ watch(() => props.trabajador, (trabajador) => {
 
 const handleSubmit = () => {
   errorMsg.value = '';
-  if (!formData.value.nombre || !formData.value.cargo || !formData.value.carnet_identidad || !formData.value.num_telefono) {
+  if (!formData.value.nombre || !formData.value.carnet_identidad) {
     errorMsg.value = 'Todos los campos son obligatorios.';
     return;
   }
@@ -130,6 +131,13 @@ const onCarnetInput = (e) => {
   let value = e.target.value.replace(/\D/g, '');
   if (value.length > 11) value = value.slice(0, 11);
   formData.value.carnet_identidad = value;
+};
+
+const onTelefonoInput = (e) => {
+  let value = e.target.value;
+  // Permitir solo números del 0-9 y los símbolos + y -
+  value = value.replace(/[^0-9+\-]/g, '');
+  formData.value.num_telefono = value;
 };
 
 // Columnas para la tabla de contratos

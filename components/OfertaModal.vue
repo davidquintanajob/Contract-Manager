@@ -60,6 +60,49 @@
               required
             />
           </div>
+          <!-- Estado -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <div class="space-y-2">
+              <label class="flex items-center cursor-pointer" :class="{ 'opacity-50': isViewing }">
+                <input
+                  type="radio"
+                  v-model="formData.estado"
+                  value="facturada"
+                  :disabled="isViewing"
+                  class="sr-only"
+                />
+                <div class="px-4 py-2 rounded-lg border-2 transition-all duration-200 flex items-center"
+                     :class="formData.estado === 'facturada' 
+                       ? 'bg-blue-500 border-blue-600 text-white shadow-md' 
+                       : 'bg-blue-100 border-blue-300 text-blue-700 hover:bg-blue-200'">
+                  <div class="w-4 h-4 border-2 border-current rounded-full mr-3 flex items-center justify-center">
+                    <div v-if="formData.estado === 'facturada'" class="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <span class="font-medium">Facturada</span>
+                </div>
+              </label>
+              
+              <label class="flex items-center cursor-pointer" :class="{ 'opacity-50': isViewing }">
+                <input
+                  type="radio"
+                  v-model="formData.estado"
+                  value="no_facturada"
+                  :disabled="isViewing"
+                  class="sr-only"
+                />
+                <div class="px-4 py-2 rounded-lg border-2 transition-all duration-200 flex items-center"
+                     :class="formData.estado === 'no_facturada' 
+                       ? 'bg-gray-500 border-gray-600 text-white shadow-md' 
+                       : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'">
+                  <div class="w-4 h-4 border-2 border-current rounded-full mr-3 flex items-center justify-center">
+                    <div v-if="formData.estado === 'no_facturada'" class="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <span class="font-medium">No Facturada</span>
+                </div>
+              </label>
+            </div>
+          </div>
         </div>
         <!-- Botones de acción -->
         <div class="flex justify-end space-x-4 mt-6" v-if="!isViewing">
@@ -97,7 +140,8 @@ const formData = ref({
   fecha_inicio: '',
   fecha_fin: '',
   id_contrato: '',
-  id_usuario: ''
+  id_usuario: '',
+  estado: 'no_facturada'
 });
 const errorMsg = ref('');
 watch(() => [props.oferta, props.id_usuario, props.id_contrato], ([oferta, id_usuario, id_contrato]) => {
@@ -111,7 +155,8 @@ watch(() => [props.oferta, props.id_usuario, props.id_contrato], ([oferta, id_us
         : Number(oferta.id_contrato || oferta.contrato?.id_contrato || 0) || null,
       id_usuario: (id_usuario !== null && id_usuario !== undefined)
         ? (props.usuarios.find(u => u.id_usuario === id_usuario)?.id_usuario ?? null)
-        : Number(oferta.id_usuario || oferta.usuario?.id_usuario || 0) || null
+        : Number(oferta.id_usuario || oferta.usuario?.id_usuario || 0) || null,
+      estado: oferta.estado === 'facturada' ? 'facturada' : 'no_facturada'
     };
   } else {
     formData.value = {
@@ -119,7 +164,8 @@ watch(() => [props.oferta, props.id_usuario, props.id_contrato], ([oferta, id_us
       fecha_inicio: '',
       fecha_fin: '',
       id_contrato: null,
-      id_usuario: null
+      id_usuario: null,
+      estado: 'no_facturada'
     };
   }
 }, { immediate: true });
@@ -142,7 +188,7 @@ watch(
 );
 const handleSubmit = () => {
   errorMsg.value = '';
-  if (!formData.value.descripcion || !formData.value.fecha_inicio || !formData.value.fecha_fin || !formData.value.id_contrato || !formData.value.id_usuario) {
+  if (!formData.value.descripcion || !formData.value.fecha_inicio || !formData.value.fecha_fin || !formData.value.id_contrato || !formData.value.id_usuario || !formData.value.estado) {
     errorMsg.value = 'Todos los campos son obligatorios.';
     return;
   }
