@@ -368,7 +368,7 @@ const ContratoService = {
       const { count, rows: contratos } = await Contrato.findAndCountAll({
         where: whereClause,
         include: includeClause,
-        order: [['fecha_inicio', 'DESC']],
+        order: [['fecha_inicio', 'DESC'], ['num_consecutivo', 'DESC']],
         limit: parseInt(limit),
         offset: offset
       });

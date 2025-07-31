@@ -89,8 +89,7 @@ const ContratoController = {
       'id_tipo_contrato',
       'fecha_inicio',
       'fecha_fin',
-      'num_consecutivo',
-      'clasificacion'
+      'num_consecutivo'
     ];
 
     const camposFaltantes = camposRequeridos.filter(campo => !req.body[campo]);

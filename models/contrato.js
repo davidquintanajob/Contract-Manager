@@ -36,7 +36,7 @@ const Contrato = sequelize.define("contrato", {
   },
   clasificacion: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   nota: {
     type: DataTypes.TEXT,
