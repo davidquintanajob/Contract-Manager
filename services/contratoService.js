@@ -364,8 +364,20 @@ const ContratoService = {
       // Calcular offset para la paginación
       const offset = (page - 1) * limit;
 
-      // Realizar la búsqueda con paginación
-      const { count, rows: contratos } = await Contrato.findAndCountAll({
+      // Primero, contar el total de contratos únicos que coinciden con los filtros
+      // Solo incluir relaciones que no dupliquen registros (Entidad y TipoContrato)
+      const countIncludeClause = includeClause.filter(include => 
+        include.model === Entidad || include.model === TipoContrato
+      );
+      
+      const totalCount = await Contrato.count({
+        where: whereClause,
+        include: countIncludeClause,
+        distinct: true
+      });
+
+      // Luego, obtener los contratos con todas las relaciones para la página actual
+      const contratos = await Contrato.findAll({
         where: whereClause,
         include: includeClause,
         order: [['fecha_inicio', 'DESC'], ['num_consecutivo', 'DESC']],
@@ -374,14 +386,14 @@ const ContratoService = {
       });
 
       // Calcular metadatos de paginación
-      const totalPages = Math.ceil(count / limit);
+      const totalPages = Math.ceil(totalCount / limit);
       const hasNextPage = page < totalPages;
       const hasPrevPage = page > 1;
 
       return {
         contratos,
         pagination: {
-          total: count,
+          total: totalCount,
           totalPages,
           currentPage: parseInt(page),
           limit: parseInt(limit),
@@ -392,6 +404,42 @@ const ContratoService = {
     } catch (error) {
       console.error('Error al filtrar contratos:', error);
       throw new Error(`Error al filtrar contratos: ${error.message}`);
+    }
+  },
+
+  /**
+   * Obtiene contratos que están próximos a vencer (1 mes o menos antes de la fecha fin)
+   * @returns {Promise<Array>} Lista de contratos próximos a vencer
+   */
+  getContratosProximosAVencer: async () => {
+    try {
+      const fechaActual = new Date();
+      const fechaLimite = new Date();
+      fechaLimite.setMonth(fechaLimite.getMonth() + 1); // 1 mes desde hoy
+
+      return await Contrato.findAll({
+        where: {
+          fecha_fin: {
+            [Op.between]: [fechaActual, fechaLimite]
+          }
+        },
+        include: [
+          {
+            model: Entidad,
+            as: 'entidad',
+            attributes: ['id_entidad', 'nombre', 'direccion', 'telefono', 'email', 'tipo_entidad']
+          },
+          {
+            model: TipoContrato,
+            as: 'tipoContrato',
+            attributes: ['id_tipo_contrato', 'nombre']
+          }
+        ],
+        order: [['fecha_fin', 'ASC']] // Ordenar por fecha de vencimiento (más próximos primero)
+      });
+    } catch (error) {
+      console.error('Error al obtener contratos próximos a vencer:', error);
+      throw new Error(`Error al obtener contratos próximos a vencer: ${error.message}`);
     }
   },
 };

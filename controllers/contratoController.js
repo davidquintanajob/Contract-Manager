@@ -336,6 +336,29 @@ const ContratoController = {
       });
     }
   },
+
+  /**
+   * Obtiene contratos que están próximos a vencer (1 mes o menos antes de la fecha fin)
+   * @param {Object} req - Objeto de solicitud Express
+   * @param {Object} res - Objeto de respuesta Express
+   */
+  getContratosProximosAVencer: async (req, res) => {
+    try {
+      const contratos = await ContratoService.getContratosProximosAVencer();
+      
+      return res.status(200).json({
+        message: "Contratos próximos a vencer obtenidos exitosamente",
+        data: contratos,
+        count: contratos.length
+      });
+    } catch (error) {
+      console.error("Error al obtener contratos próximos a vencer:", error);
+      return res.status(500).json({
+        message: "Error al obtener contratos próximos a vencer",
+        error: error.message
+      });
+    }
+  },
 };
 
 module.exports = ContratoController; 

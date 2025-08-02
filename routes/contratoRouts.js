@@ -87,6 +87,106 @@ router.get("/contrato", authenticate(), contratoController.getAllContratos);
 
 /**
  * @swagger
+ * /contrato/proximos-a-vencer:
+ *   get:
+ *     summary: Obtiene contratos que están próximos a vencer (1 mes o menos antes de la fecha fin)
+ *     tags:
+ *       - Contrato
+ *     responses:
+ *       200:
+ *         description: Contratos próximos a vencer obtenidos exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Contratos próximos a vencer obtenidos exitosamente
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id_contrato:
+ *                         type: integer
+ *                         description: ID único del contrato
+ *                       id_entidad:
+ *                         type: integer
+ *                         description: ID de la entidad asociada
+ *                       id_tipo_contrato:
+ *                         type: integer
+ *                         description: ID del tipo de contrato
+ *                       fecha_inicio:
+ *                         type: string
+ *                         format: date
+ *                         description: Fecha de inicio del contrato
+ *                       fecha_fin:
+ *                         type: string
+ *                         format: date
+ *                         description: Fecha de finalización del contrato
+ *                       num_consecutivo:
+ *                         type: integer
+ *                         description: Número consecutivo único del contrato
+ *                       clasificacion:
+ *                         type: string
+ *                         description: Clasificación del contrato
+ *                       nota:
+ *                         type: string
+ *                         description: Notas adicionales del contrato
+ *                       entidad:
+ *                         type: object
+ *                         description: Información de la entidad asociada
+ *                       tipoContrato:
+ *                         type: object
+ *                         description: Información del tipo de contrato
+ *                       ofertas:
+ *                         type: array
+ *                         description: Lista de ofertas asociadas
+ *                       trabajadoresAutorizados:
+ *                         type: array
+ *                         description: Lista de trabajadores autorizados
+ *                 count:
+ *                   type: integer
+ *                   description: Número total de contratos próximos a vencer
+ *                   example: 5
+ *             example:
+ *               message: "Contratos próximos a vencer obtenidos exitosamente"
+ *               data:
+ *                 - id_contrato: 1
+ *                   id_entidad: 1
+ *                   id_tipo_contrato: 1
+ *                   fecha_inicio: "2024-01-01"
+ *                   fecha_fin: "2024-12-31"
+ *                   num_consecutivo: 1001
+ *                   clasificacion: "Servicios"
+ *                   nota: "Contrato de servicios profesionales"
+ *                   entidad:
+ *                     id_entidad: 1
+ *                     nombre: "Empresa ABC"
+ *                   tipoContrato:
+ *                     id_tipo_contrato: 1
+ *                     nombre: "Contrato Temporal"
+ *                   ofertas: []
+ *                   trabajadoresAutorizados: []
+ *               count: 1
+ *       500:
+ *         description: Error al obtener contratos próximos a vencer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Error al obtener contratos próximos a vencer
+ *                 error:
+ *                   type: string
+ */
+router.get("/contrato/proximos-a-vencer", authenticate(), contratoController.getContratosProximosAVencer);
+
+/**
+ * @swagger
  * /contrato/{id}:
  *   get:
  *     summary: Obtiene un contrato por ID
