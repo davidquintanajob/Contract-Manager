@@ -255,9 +255,16 @@ async function fetchContratos(page = 1) {
     
     // Verificar si hay error de autenticación
     if (res.status === 401 || res.status === 403) {
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      navigateTo('/');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     
@@ -294,9 +301,16 @@ async function fetchTipoContratos() {
     
     // Verificar si hay error de autenticación
     if (res.status === 401 || res.status === 403) {
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      navigateTo('/');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     
@@ -326,9 +340,16 @@ async function fetchEntidades() {
     
     // Verificar si hay error de autenticación
     if (res.status === 401 || res.status === 403) {
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      navigateTo('/');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     
@@ -377,9 +398,16 @@ async function confirmDeleteContrato() {
     
     // Verificar si hay error de autenticación
     if (res.status === 401 || res.status === 403) {
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      navigateTo('/');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     
@@ -426,9 +454,16 @@ const handleContratoSubmit = async (formData) => {
       body: JSON.stringify(formData)
     });
     if (response.status === 401 || response.status === 403) {
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      navigateTo('/');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     if (response.status === 400 || response.status === 500) {
@@ -436,7 +471,7 @@ const handleContratoSubmit = async (formData) => {
       if (errorData.error) {
         errorBanner.value = {
           title: `Errores de validación: ${response.status}`,
-          description: errorData.message,
+          description: errorData.error,
           type: 'error'
         };
       } else {

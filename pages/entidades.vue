@@ -220,7 +220,16 @@ const fetchItems = async (page = 1, limit = 20, nombre = '', direccion = '', tel
 
     // Si la respuesta es 401, redirigir a la página principal
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
 
@@ -367,7 +376,16 @@ const handleEntidadSubmit = async (formData) => {
     
     // Si la respuesta es 401, redirigir a la página principal
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
 
@@ -377,7 +395,7 @@ const handleEntidadSubmit = async (formData) => {
       if (errorData.error) {
         errorBanner.value = {
           title: `Errores de validación: ${response.status}`,
-          description: errorData.message,
+          description: errorData.error,
           type: 'error'
         };
       } else {
@@ -456,14 +474,23 @@ async function confirmDeleteEntidad() {
       }
     });
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     if (!response.ok) {
       const errorData = await response.json();
       errorBanner.value = {
         title: `Error al eliminar: ${response.status}`,
-        description: errorData.message || JSON.stringify(errorData),
+        description: errorData.error || JSON.stringify(errorData),
         type: 'error'
       };
       return;

@@ -1,5 +1,16 @@
 <template>
   <div v-if="modelValue" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <!-- MessageBanner para mostrar estado de carga -->
+    <div v-if="loadingBanner" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4 pointer-events-none">
+      <MessageBanner 
+        :title="loadingBanner.title" 
+        :description="loadingBanner.description" 
+        :type="loadingBanner.type"
+        @close="loadingBanner = null" 
+        class="pointer-events-auto" 
+      />
+    </div>
+    
     <div class="bg-white rounded-lg p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
       <!-- Encabezado -->
       <div class="flex justify-between items-center mb-6">
@@ -18,20 +29,20 @@
           <!-- Descripción -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-            <textarea v-model="formData.descripcion" :readonly="isViewing" :disabled="isViewing" required rows="3"
+            <textarea v-model="formData.descripcion" :readonly="isViewing" :disabled="isViewing || isLoading" required rows="3"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Ingrese la descripción de la oferta"></textarea>
           </div>
           <!-- Fecha inicio -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha inicio</label>
-            <input v-model="formData.fecha_inicio" type="date" :readonly="isViewing" :disabled="isViewing" required
+            <input v-model="formData.fecha_inicio" type="date" :readonly="isViewing" :disabled="isViewing || isLoading" required
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <!-- Fecha fin -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha fin</label>
-            <input v-model="formData.fecha_fin" type="date" :readonly="isViewing" :disabled="isViewing" required
+            <input v-model="formData.fecha_fin" type="date" :readonly="isViewing" :disabled="isViewing || isLoading" required
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <!-- Contrato -->
@@ -43,7 +54,7 @@
               :labelKey="(c) => `${c.entidad?.nombre}: ${c?.num_consecutivo} - ${c.tipoContrato?.nombre} - (${c.fecha_inicio?.substring(0,4)})`"
               valueKey="id_contrato"
               placeholder="Buscar contrato..."
-              :disabled="isViewing"
+              :disabled="isViewing || isLoading"
               required
             />
           </div>
@@ -56,7 +67,7 @@
               labelKey="nombre"
               valueKey="id_usuario"
               placeholder="Buscar usuario..."
-              :disabled="isViewing"
+              :disabled="isViewing || isLoading"
               required
             />
           </div>
@@ -64,12 +75,12 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
             <div class="space-y-2">
-              <label class="flex items-center cursor-pointer" :class="{ 'opacity-50': isViewing }">
+              <label class="flex items-center cursor-pointer" :class="{ 'opacity-50': isViewing || isLoading }">
                 <input
                   type="radio"
                   v-model="formData.estado"
                   value="facturada"
-                  :disabled="isViewing"
+                  :disabled="isViewing || isLoading"
                   class="sr-only"
                 />
                 <div class="px-4 py-2 rounded-lg border-2 transition-all duration-200 flex items-center"
@@ -83,12 +94,12 @@
                 </div>
               </label>
               
-              <label class="flex items-center cursor-pointer" :class="{ 'opacity-50': isViewing }">
+              <label class="flex items-center cursor-pointer" :class="{ 'opacity-50': isViewing || isLoading }">
                 <input
                   type="radio"
                   v-model="formData.estado"
                   value="no_facturada"
-                  :disabled="isViewing"
+                  :disabled="isViewing || isLoading"
                   class="sr-only"
                 />
                 <div class="px-4 py-2 rounded-lg border-2 transition-all duration-200 flex items-center"
@@ -107,12 +118,23 @@
         <!-- Botones de acción -->
         <div class="flex justify-end space-x-4 mt-6" v-if="!isViewing">
           <button type="button" @click="$emit('update:modelValue', false)"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            :disabled="isLoading">
             Cancelar
           </button>
           <button type="submit"
-            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            {{ isEditing ? 'Guardar Cambios' : 'Crear Oferta' }}
+            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="isLoading">
+            <span v-if="isLoading" class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isEditing ? 'Guardando...' : 'Creando...' }}
+            </span>
+            <span v-else>
+              {{ isEditing ? 'Guardar Cambios' : 'Crear Oferta' }}
+            </span>
           </button>
         </div>
       </form>
@@ -124,6 +146,8 @@
 <script setup>
 import { ref, watch } from 'vue';
 import SelectSearch from './SelectSearch.vue';
+import MessageBanner from './MessageBanner.vue';
+
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
   oferta: { type: Object, default: () => ({}) },
@@ -134,7 +158,9 @@ const props = defineProps({
   id_usuario: { type: [Number, null], default: null },
   id_contrato: { type: [Number, null], default: null }
 });
+
 const emit = defineEmits(['update:modelValue', 'submit']);
+
 const formData = ref({
   descripcion: '',
   fecha_inicio: '',
@@ -143,7 +169,11 @@ const formData = ref({
   id_usuario: '',
   estado: 'no_facturada'
 });
+
 const errorMsg = ref('');
+const isLoading = ref(false);
+const loadingBanner = ref(null);
+
 watch(() => [props.oferta, props.id_usuario, props.id_contrato], ([oferta, id_usuario, id_contrato]) => {
   if (oferta && Object.keys(oferta).length > 0) {
     formData.value = {
@@ -186,12 +216,36 @@ watch(
     }
   }
 );
-const handleSubmit = () => {
+const handleSubmit = async () => {
   errorMsg.value = '';
   if (!formData.value.descripcion || !formData.value.fecha_inicio || !formData.value.fecha_fin || !formData.value.id_contrato || !formData.value.id_usuario || !formData.value.estado) {
     errorMsg.value = 'Todos los campos son obligatorios.';
     return;
   }
-  emit('submit', { ...formData.value });
+  
+  // Activar estado de carga
+  isLoading.value = true;
+  loadingBanner.value = {
+    title: props.isEditing ? 'Guardando Oferta' : 'Creando Oferta',
+    description: 'Comunicando con el servidor, espere por favor...',
+    type: 'warning'
+  };
+  
+  try {
+    // Emitir el evento submit y esperar la respuesta
+    await new Promise((resolve, reject) => {
+      emit('submit', { ...formData.value });
+      // Simular un pequeño delay para que el usuario vea el mensaje
+      setTimeout(resolve, 100);
+    });
+  } catch (error) {
+    console.error('Error en handleSubmit:', error);
+  } finally {
+    // Desactivar estado de carga después de un breve delay
+    setTimeout(() => {
+      isLoading.value = false;
+      loadingBanner.value = null;
+    }, 500);
+  }
 };
 </script> 

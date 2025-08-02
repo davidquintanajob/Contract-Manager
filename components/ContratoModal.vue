@@ -1,5 +1,16 @@
 <template>
   <div v-if="modelValue" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <!-- MessageBanner para mostrar estado de carga -->
+    <div v-if="loadingBanner" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4 pointer-events-none">
+      <MessageBanner 
+        :title="loadingBanner.title" 
+        :description="loadingBanner.description" 
+        :type="loadingBanner.type"
+        @close="loadingBanner = null" 
+        class="pointer-events-auto" 
+      />
+    </div>
+    
     <div class="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[80vh] overflow-y-auto">
       <!-- Encabezado -->
       <div class="flex justify-between items-center mb-6">
@@ -23,7 +34,7 @@
               :options="entidades"
               labelKey="nombre"
               valueKey="id_entidad"
-              :disabled="isViewing"
+              :disabled="isViewing || isLoading"
               placeholder="Selecciona una entidad"
             />
           </div>
@@ -35,14 +46,14 @@
               :options="tiposContrato"
               labelKey="nombre"
               valueKey="id_tipo_contrato"
-              :disabled="isViewing"
+              :disabled="isViewing || isLoading"
               placeholder="Selecciona un tipo de contrato"
             />
           </div>
           <!-- Fecha Inicio -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio</label>
-            <input v-model="formData.fecha_inicio" type="date" :readonly="isViewing" :disabled="isViewing"
+            <input v-model="formData.fecha_inicio" type="date" :readonly="isViewing" :disabled="isViewing || isLoading"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               @change="handleFechaInicioChange"
               required />
@@ -50,27 +61,27 @@
           <!-- Fecha Fin -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Fin</label>
-            <input v-model="formData.fecha_fin" type="date" :readonly="isViewing" :disabled="isViewing"
+            <input v-model="formData.fecha_fin" type="date" :readonly="isViewing" :disabled="isViewing || isLoading"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required />
           </div>
           <!-- Número Consecutivo -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Número Consecutivo</label>
-            <input v-model="formData.num_consecutivo" type="number" :readonly="isViewing" :disabled="isViewing"
+            <input v-model="formData.num_consecutivo" type="number" :readonly="isViewing" :disabled="isViewing || isLoading"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required />
           </div>
           <!-- Clasificación -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Clasificación</label>
-            <input v-model="formData.clasificacion" type="text" :readonly="isViewing" :disabled="isViewing"
+            <input v-model="formData.clasificacion" type="text" :readonly="isViewing" :disabled="isViewing || isLoading"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </div>
           <!-- Nota -->
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-1">Nota</label>
-            <textarea v-model="formData.nota" :readonly="isViewing" :disabled="isViewing"
+            <textarea v-model="formData.nota" :readonly="isViewing" :disabled="isViewing || isLoading"
               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows="2" placeholder="Ingrese una nota opcional"></textarea>
           </div>
@@ -78,12 +89,23 @@
         <!-- Botones de acción -->
         <div class="flex justify-end space-x-4 mt-6" v-if="!isViewing">
           <button type="button" @click="$emit('update:modelValue', false)"
-            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+            class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            :disabled="isLoading">
             Cancelar
           </button>
           <button type="submit"
-            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            {{ isEditing ? 'Guardar Cambios' : 'Crear Contrato' }}
+            class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="isLoading">
+            <span v-if="isLoading" class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isEditing ? 'Guardando...' : 'Creando...' }}
+            </span>
+            <span v-else>
+              {{ isEditing ? 'Guardar Cambios' : 'Crear Contrato' }}
+            </span>
           </button>
         </div>
       </form>
@@ -98,7 +120,6 @@
             :items-per-page="trabajadoresPerPage"
             :current-page="trabajadoresPage"
             :is-loading="false"
-            :show-actions="false"
             @page-change="handleTrabajadoresPageChange"
           />
         </div>
@@ -111,7 +132,6 @@
             :items-per-page="ofertasPerPage"
             :current-page="ofertasPage"
             :is-loading="false"
-            :show-actions="false"
             @page-change="handleOfertasPageChange"
           />
         </div>
@@ -125,16 +145,37 @@
 import { ref, watch, computed } from 'vue';
 import SelectSearch from './SelectSearch.vue';
 import DataTable from './DataTable.vue';
+import MessageBanner from './MessageBanner.vue';
 
 const props = defineProps({
-  modelValue: { type: Boolean, required: true },
-  contrato: { type: Object, default: () => ({}) },
-  isEditing: { type: Boolean, default: false },
-  isViewing: { type: Boolean, default: false },
-  entidades: { type: Array, default: () => [] },
-  tiposContrato: { type: Array, default: () => [] }
+  modelValue: {
+    type: Boolean,
+    required: true
+  },
+  contrato: {
+    type: Object,
+    default: () => ({})
+  },
+  isEditing: {
+    type: Boolean,
+    default: false
+  },
+  isViewing: {
+    type: Boolean,
+    default: false
+  },
+  entidades: {
+    type: Array,
+    default: () => []
+  },
+  tiposContrato: {
+    type: Array,
+    default: () => []
+  }
 });
+
 const emit = defineEmits(['update:modelValue', 'submit']);
+
 const formData = ref({
   id_entidad: '',
   id_tipo_contrato: '',
@@ -144,7 +185,10 @@ const formData = ref({
   clasificacion: '',
   nota: ''
 });
+
 const errorMsg = ref('');
+const isLoading = ref(false);
+const loadingBanner = ref(null);
 
 // Función para obtener el siguiente número consecutivo
 async function fetchNextConsecutivo() {
@@ -168,9 +212,16 @@ async function fetchNextConsecutivo() {
     
     // Verificar si hay error de autenticación
     if (res.status === 401 || res.status === 403) {
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      navigateTo('/');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     
@@ -219,13 +270,37 @@ watch(() => props.contrato, (contrato) => {
   }
 }, { immediate: true });
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   errorMsg.value = '';
   if (!formData.value.id_entidad || !formData.value.id_tipo_contrato || !formData.value.fecha_inicio || !formData.value.fecha_fin || !formData.value.num_consecutivo) {
     errorMsg.value = 'Todos los campos obligatorios deben estar completos.';
     return;
   }
-  emit('submit', { ...formData.value });
+  
+  // Activar estado de carga
+  isLoading.value = true;
+  loadingBanner.value = {
+    title: props.isEditing ? 'Guardando Contrato' : 'Creando Contrato',
+    description: 'Comunicando con el servidor, espere por favor...',
+    type: 'warning'
+  };
+  
+  try {
+    // Emitir el evento submit y esperar la respuesta
+    await new Promise((resolve, reject) => {
+      emit('submit', { ...formData.value });
+      // Simular un pequeño delay para que el usuario vea el mensaje
+      setTimeout(resolve, 100);
+    });
+  } catch (error) {
+    console.error('Error en handleSubmit:', error);
+  } finally {
+    // Desactivar estado de carga después de un breve delay
+    setTimeout(() => {
+      isLoading.value = false;
+      loadingBanner.value = null;
+    }, 500);
+  }
 };
 
 // Función para manejar el cambio de fecha de inicio

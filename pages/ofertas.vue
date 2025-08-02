@@ -271,7 +271,16 @@ const fetchItems = async (
       body: JSON.stringify(body)
     });
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     const data = await response.json();
@@ -454,7 +463,16 @@ function confirmDeleteOferta() {
     })
       .then(async response => {
         if (response.status === 401 || response.status === 403) {
-          navigateTo('/');
+          errorBanner.value = {
+            title: 'Sesión Expirada',
+            description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+            type: 'warning'
+          };
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setTimeout(() => {
+            navigateTo('/');
+          }, 3000);
           return;
         }
         if (!response.ok) {
@@ -536,7 +554,16 @@ const handleOfertaSubmit = async (formData) => {
       body: JSON.stringify(datosParaEnviar)
     });
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     if (response.status === 400 || response.status === 500) {

@@ -228,7 +228,16 @@
 
       // Si la respuesta es 401, redirigir a la página principal
       if (response.status === 401 || response.status === 403) {
-        navigateTo('/');
+        errorBanner.value = {
+          title: 'Sesión Expirada',
+          description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+          type: 'warning'
+        };
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setTimeout(() => {
+          navigateTo('/');
+        }, 3000);
         return;
       }
 
@@ -388,7 +397,16 @@
     
     // Si la respuesta es 401, redirigir a la página principal
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
 
@@ -470,7 +488,16 @@
         }
       });
       if (response.status === 401 || response.status === 403) {
-        navigateTo('/');
+        errorBanner.value = {
+          title: 'Sesión Expirada',
+          description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+          type: 'warning'
+        };
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setTimeout(() => {
+          navigateTo('/');
+        }, 3000);
         return;
       }
       if (!response.ok) {

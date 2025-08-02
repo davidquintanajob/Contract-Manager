@@ -236,8 +236,16 @@ const fetchContratos = async (page = 1, append = false) => {
     });
     
     if (res.status === 401 || res.status === 403) {
-      // Redirigir al login si no hay token válido
-      window.location.href = '/';
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     
@@ -385,9 +393,16 @@ const guardarAsociaciones = async () => {
     });
     // Redirigir si la respuesta es 401 o 403
     if (res.status === 401 || res.status === 403) {
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/';
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     if (res.ok) {

@@ -120,7 +120,16 @@ const fetchItems = async (page = 1, limit = 20) => {
 
     // Si la respuesta es 401, redirigir a la página principal
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
 
@@ -179,7 +188,16 @@ async function confirmDeleteTipoContrato() {
       }
     });
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
     if (!response.ok) {
@@ -292,7 +310,16 @@ const handleTipoContratoSubmit = async (formData) => {
 
     // Si la respuesta es 401, redirigir a la página principal
     if (response.status === 401 || response.status === 403) {
-      navigateTo('/');
+      errorBanner.value = {
+        title: 'Sesión Expirada',
+        description: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning'
+      };
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
       return;
     }
 

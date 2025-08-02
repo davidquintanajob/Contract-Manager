@@ -1,7 +1,7 @@
 <template>
   <div :class="bannerClass" class="flex items-center p-4 rounded-lg mb-4 shadow-md relative overflow-hidden">
-    <!-- Barra de progreso -->
-    <div class="absolute top-0 left-0 h-1 bg-current opacity-30 transition-all duration-100 ease-linear" 
+    <!-- Barra de progreso (solo si no es persistente) -->
+    <div v-if="!persistent" class="absolute top-0 left-0 h-1 bg-current opacity-30 transition-all duration-100 ease-linear" 
          :style="{ width: `${progressWidth}%` }"></div>
     
     <button @click="closeBanner" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 focus:outline-none" aria-label="Cerrar">
@@ -33,7 +33,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 const props = defineProps({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  type: { type: String, default: 'success' } // success, error, warning
+  type: { type: String, default: 'success' }, // success, error, warning
+  persistent: { type: Boolean, default: false } // Si es true, el banner no se cierra automáticamente
 });
 
 const emit = defineEmits(['close']);
@@ -58,24 +59,27 @@ const closeBanner = () => {
 };
 
 onMounted(() => {
-  // Iniciar el temporizador de 5 segundos
-  timer.value = setTimeout(() => {
-    emit('close');
-  }, 5000);
+  // Solo iniciar temporizador y barra de progreso si NO es persistente
+  if (!props.persistent) {
+    // Iniciar el temporizador de 5 segundos
+    timer.value = setTimeout(() => {
+      emit('close');
+    }, 5000);
 
-  // Iniciar la barra de progreso
-  const startTime = Date.now();
-  const duration = 5000; // 5 segundos
+    // Iniciar la barra de progreso
+    const startTime = Date.now();
+    const duration = 5000; // 5 segundos
 
-  progressTimer.value = setInterval(() => {
-    const elapsed = Date.now() - startTime;
-    const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
-    progressWidth.value = remaining;
+    progressTimer.value = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
+      progressWidth.value = remaining;
 
-    if (remaining <= 0) {
-      clearInterval(progressTimer.value);
-    }
-  }, 50); // Actualizar cada 50ms para una animación suave
+      if (remaining <= 0) {
+        clearInterval(progressTimer.value);
+      }
+    }, 50); // Actualizar cada 50ms para una animación suave
+  }
 });
 
 onUnmounted(() => {
