@@ -42,58 +42,58 @@
             <br>
             Código REEUP: <span v-if="modoLectura">{{ form.reeupCliente }}</span><input v-else v-model="form.reeupCliente" class="bg-transparent outline-none w-32" /> NIT: <span v-if="modoLectura">{{ form.nitCliente }}</span><input v-else v-model="form.nitCliente" class="bg-transparent outline-none w-32" />
           </div>
-          <!-- Tabla de productos/servicios -->
-          <table class="w-full border-collapse border-blue-600" style="font-size: 12px;">
-            <thead>
-              <tr class="bg-blue-100 text-blue-800">
-                <th class="border border-blue-600 px-1">No</th>
-                <th class="border border-blue-600 px-1">Descripción</th>
-                <th class="border border-blue-600 px-1">U/M</th>
-                <th class="border border-blue-600 px-1">Cantidad</th>
-                <th class="border border-blue-600 px-1">Precio</th>
-                <th class="border border-blue-600 px-1">Importe</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(row, i) in form.tabla" :key="i">
-                <td class="border border-blue-600 px-1 py-3">
-                  <span v-if="modoLectura">{{ row.no }}</span>
-                  <input v-else v-model="row.no" class="w-full bg-transparent outline-none text-center" />
-                </td>
-                <td class="border border-blue-600 px-1 py-3">
-                  <span v-if="modoLectura">{{ row.descripcion }}</span>
-                  <input v-else v-model="row.descripcion" class="w-full bg-transparent outline-none" />
-                </td>
-                <td class="border border-blue-600 px-1 py-3">
-                  <span v-if="modoLectura">{{ row.um }}</span>
-                  <input v-else v-model="row.um" class="w-full bg-transparent outline-none text-center" />
-                </td>
-                <td class="border border-blue-600 px-1 py-3">
-                  <span v-if="modoLectura">{{ row.cantidad }}</span>
-                  <input v-else v-model="row.cantidad" class="w-full bg-transparent outline-none text-center" />
-                </td>
-                <td class="border border-blue-600 px-1 py-3">
-                  <span v-if="modoLectura">{{ row.precio }}</span>
-                  <input v-else v-model="row.precio" class="w-full bg-transparent outline-none text-center" />
-                </td>
-                <td class="border border-blue-600 px-1 py-3">
-                  <span v-if="modoLectura">{{ row.importe }}</span>
-                  <input v-else v-model="row.importe" class="w-full bg-transparent outline-none text-center" />
-                </td>
-              </tr>
-              <tr>
-                <td class="border border-blue-600 px-1 text-right font-bold" colspan="4">Totales</td>
-                <td class="border border-blue-600 px-1 text-right font-bold">
-                  <span v-if="modoLectura">{{ form.totalPrecio }}</span>
-                  <input v-else v-model="form.totalPrecio" class="w-full bg-transparent outline-none text-right font-bold" />
-                </td>
-                <td class="border border-blue-600 px-1 text-right font-bold">
-                  <span v-if="modoLectura">{{ form.totalImporte }}</span>
-                  <input v-else v-model="form.totalImporte" class="w-full bg-transparent outline-none text-right font-bold" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                     <!-- Tabla de productos/servicios -->
+           <table class="w-full border-collapse border-blue-600" style="font-size: 12px; table-layout: fixed;">
+             <thead>
+               <tr class="bg-blue-100 text-blue-800" style="height: 40px;">
+                 <th class="border border-blue-600 px-1" style="width: 8%;">No</th>
+                 <th class="border border-blue-600 px-1" style="width: 35%;">Descripción</th>
+                 <th class="border border-blue-600 px-1" style="width: 12%;">U/M</th>
+                 <th class="border border-blue-600 px-1" style="width: 15%;">Cantidad</th>
+                 <th class="border border-blue-600 px-1" style="width: 15%;">Precio</th>
+                 <th class="border border-blue-600 px-1" style="width: 15%;">Importe</th>
+               </tr>
+             </thead>
+             <tbody>
+               <tr v-for="(row, i) in form.tabla" :key="i" style="height: 40px;">
+                 <td class="border border-blue-600 px-1" style="vertical-align: middle;">
+                   <span v-if="modoLectura">{{ row.no }}</span>
+                   <input v-else v-model="row.no" class="w-full bg-transparent outline-none text-center" />
+                 </td>
+                 <td class="border border-blue-600 px-1" style="vertical-align: middle;">
+                   <span v-if="modoLectura">{{ row.descripcion }}</span>
+                   <input v-else v-model="row.descripcion" class="w-full bg-transparent outline-none" />
+                 </td>
+                 <td class="border border-blue-600 px-1" style="vertical-align: middle;">
+                   <span v-if="modoLectura">{{ row.um }}</span>
+                   <input v-else v-model="row.um" class="w-full bg-transparent outline-none text-center" />
+                 </td>
+                 <td class="border border-blue-600 px-1" style="vertical-align: middle;">
+                   <span v-if="modoLectura">{{ row.cantidad }}</span>
+                   <input v-else v-model="row.cantidad" class="w-full bg-transparent outline-none text-center" @input="calcularImporte(i)" />
+                 </td>
+                 <td class="border border-blue-600 px-1" style="vertical-align: middle;">
+                   <span v-if="modoLectura">{{ row.precio }}</span>
+                   <input v-else v-model="row.precio" class="w-full bg-transparent outline-none text-center" @input="calcularImporte(i)" />
+                 </td>
+                 <td class="border border-blue-600 px-1" style="vertical-align: middle;">
+                   <span v-if="modoLectura">{{ row.importe }}</span>
+                   <input v-else v-model="row.importe" class="w-full bg-transparent outline-none text-center" readonly />
+                 </td>
+               </tr>
+               <tr style="height: 40px;">
+                 <td class="border border-blue-600 px-1 text-right font-bold" colspan="4" style="vertical-align: middle;">Totales</td>
+                 <td class="border border-blue-600 px-1 text-right font-bold" style="vertical-align: middle;">
+                   <span v-if="modoLectura">{{ form.totalPrecio }}</span>
+                   <input v-else v-model="form.totalPrecio" class="w-full bg-transparent outline-none text-right font-bold" />
+                 </td>
+                 <td class="border border-blue-600 px-1 text-right font-bold" style="vertical-align: middle;">
+                   <span v-if="modoLectura">{{ form.totalImporte }}</span>
+                   <input v-else v-model="form.totalImporte" class="w-full bg-transparent outline-none text-right font-bold" />
+                 </td>
+               </tr>
+             </tbody>
+           </table>
           <!-- Representantes -->
           <div class="flex border-t border-blue-600 mt-0">
             <div class="w-1/2 p-2 border-r border-blue-600">
@@ -248,6 +248,38 @@ function resetForm() {
   Object.assign(form, JSON.parse(JSON.stringify(valoresBase)));
 }
 
+// Función para calcular el importe de una fila específica
+function calcularImporte(index) {
+  const row = form.tabla[index];
+  const cantidad = parseFloat(row.cantidad) || 0;
+  const precio = parseFloat(row.precio) || 0;
+  const importe = cantidad * precio;
+  
+  // Formatear el importe con 2 decimales
+  row.importe = importe.toFixed(2);
+  
+  // Recalcular totales
+  calcularTotales();
+}
+
+// Función para calcular los totales de la tabla
+function calcularTotales() {
+  let totalPrecio = 0;
+  let totalImporte = 0;
+  
+  form.tabla.forEach(row => {
+    const precio = parseFloat(row.precio) || 0;
+    const importe = parseFloat(row.importe) || 0;
+    
+    totalPrecio += precio;
+    totalImporte += importe;
+  });
+  
+  // Formatear los totales con 2 decimales
+  form.totalPrecio = totalPrecio.toFixed(2);
+  form.totalImporte = totalImporte.toFixed(2);
+}
+
 watch(
   () => props.show,
   (nuevo) => {
@@ -263,9 +295,28 @@ watch(
         form.reeupCliente = entidad.codigo_reo || '';
         form.nitCliente = entidad.codigo_nit || '';
       }
-      if (props.ofertaData.descripcion) {
-        form.tabla[0].descripcion = props.ofertaData.descripcion;
-      }
+      // Cargar descripciones desde la lista de descripciones
+      if (props.ofertaData.descripciones && Array.isArray(props.ofertaData.descripciones)) {
+        // Limpiar la tabla primero
+        form.tabla.forEach(row => {
+          row.descripcion = '';
+        });
+        
+                 // Llenar la tabla con las descripciones
+         props.ofertaData.descripciones.forEach((descripcionObj, index) => {
+           if (index < form.tabla.length) {
+             form.tabla[index].descripcion = descripcionObj.descripcion || '';
+             form.tabla[index].no = `No.${index + 1}`;
+           }
+         });
+         
+         // Calcular totales después de cargar las descripciones
+         calcularTotales();
+             } else if (props.ofertaData.descripcion) {
+         // Fallback para compatibilidad con datos antiguos
+         form.tabla[0].descripcion = props.ofertaData.descripcion;
+         calcularTotales();
+       }
     }
     if (!nuevo) {
       resetForm();
@@ -277,19 +328,33 @@ async function exportarPDF() {
   try {
     modoLectura.value = true;
     await nextTick();
+    
+    // Esperar un poco más para que todos los elementos se rendericen correctamente
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const element = pdfContent.value;
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
-      allowTaint: true
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: element.scrollWidth,
+      height: element.scrollHeight,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight
     });
-    const imgData = canvas.toDataURL('image/png');
+    
+    const imgData = canvas.toDataURL('image/png', 1.0);
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const imgProps = pdf.getImageProperties(imgData);
     const pdfWidth = pageWidth - 10;
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    
     if (pdfHeight <= pageHeight - 10) {
       pdf.addImage(imgData, 'PNG', 5, 5, pdfWidth, pdfHeight);
     } else {
@@ -306,6 +371,7 @@ async function exportarPDF() {
     }
     pdf.save('Oferta.pdf');
   } catch (error) {
+    console.error('Error al generar el PDF:', error);
     alert('Error al generar el PDF.');
   } finally {
     modoLectura.value = false;
@@ -329,5 +395,47 @@ input, textarea {
 input:focus, textarea:focus {
   border-bottom: 1px solid #2563eb;
   background: #e0f2fe;
+}
+
+/* Estilos específicos para mejorar la exportación a PDF */
+table {
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+}
+
+th, td {
+  border: 1px solid #2563eb !important;
+  padding: 4px !important;
+  vertical-align: middle !important;
+  height: 40px !important;
+  box-sizing: border-box !important;
+}
+
+thead th {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  font-weight: bold !important;
+  text-align: center !important;
+}
+
+tbody tr {
+  height: 40px !important;
+}
+
+/* Asegurar que los inputs mantengan su posición */
+input[readonly] {
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Estilos para el modo de lectura (exportación) */
+.modo-lectura table {
+  page-break-inside: avoid;
+}
+
+.modo-lectura th,
+.modo-lectura td {
+  page-break-inside: avoid;
 }
 </style> 

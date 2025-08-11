@@ -19,8 +19,8 @@
     <!-- Barra de búsqueda y filtros -->
     <div class="container mx-auto px-4 py-4 md:py-4 mt-20 md:mt-0">
       <div class="bg-white rounded-lg shadow-md p-4">
-        <!-- Campo de búsqueda principal (por descripción) -->
-        <div class="mb-4">
+        <!-- Campo de búsqueda principal (por descripción) - ELIMINADO -->
+        <!-- <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 mb-1">Buscar por descripción</label>
           <div class="relative">
             <input type="text" v-model="descripcion" placeholder="Ingrese la descripción..."
@@ -34,7 +34,7 @@
               </svg>
             </div>
           </div>
-        </div>
+        </div> -->
         <!-- Botón para mostrar/ocultar filtros en móvil -->
         <div class="md:hidden flex justify-between items-center mb-4">
           <button @click="showFilters = !showFilters" class="flex items-center text-blue-500 hover:text-blue-600">
@@ -145,7 +145,6 @@ import ModalPDF from '@/components/ModalPDF.vue';
 import * as XLSX from 'xlsx';
 
 // Variables reactivas para los elementos de búsqueda
-const descripcion = ref('');
 const fecha_inicio = ref('');
 const fecha_fin = ref('');
 const id_usuario = ref('');
@@ -168,10 +167,9 @@ const ofertaParaPDF = ref({});
 
 // Configuración de la tabla de Ofertas
 const ofertasColumns = [
-  { key: 'id_oferta', label: 'ID' },
-  { key: 'descripcion', label: 'Descripción' },
   { key: 'fecha_inicio', label: 'Fecha Inicio' },
   { key: 'fecha_fin', label: 'Fecha Fin' },
+  { key: 'contrato.entidad.nombre', label: 'Entidad' },
   { key: 'contrato.num_consecutivo', label: 'Num Contrato' },
   { key: 'usuario.nombre', label: 'Usuario' },
   { 
@@ -309,17 +307,17 @@ const fetchItems = async (
 };
 
 const handleSearch = () => {
-  fetchItems(1, itemsPorPage.value, fecha_inicio.value, fecha_fin.value, id_contrato.value, id_usuario.value, descripcion.value);
+  fetchItems(1, itemsPorPage.value, fecha_inicio.value, fecha_fin.value, id_contrato.value, id_usuario.value, '');
 };
 
 const handlePageChange = (newPage) => {
   currentPage.value = newPage;
-  fetchItems(newPage, itemsPorPage.value, fecha_inicio.value, fecha_fin.value, id_contrato.value, id_usuario.value, descripcion.value);
+  fetchItems(newPage, itemsPorPage.value, fecha_inicio.value, fecha_fin.value, id_contrato.value, id_usuario.value, '');
 };
 
 onMounted(() => {
   fetchUsuariosYContratos();
-  fetchItems(1, itemsPorPage.value);
+  fetchItems(1, itemsPorPage.value, '', '', '', '', '');
 });
 
 const deleteIcon = {
@@ -489,7 +487,7 @@ function confirmDeleteOferta() {
           description: 'La oferta fue eliminada correctamente',
           type: 'success'
         };
-        await fetchItems(currentPage.value, itemsPorPage.value);
+        await fetchItems(currentPage.value, itemsPorPage.value, fecha_inicio.value, fecha_fin.value, id_contrato.value, id_usuario.value, '');
       })
       .catch(error => {
         errorBanner.value = {
@@ -536,8 +534,12 @@ const handleOfertaSubmit = async (formData) => {
     
     // Crear el objeto de datos con el estado determinado automáticamente
     const datosParaEnviar = {
-      ...formData,
-      estado: estadoFinal
+      fecha_inicio: formData.fecha_inicio,
+      fecha_fin: formData.fecha_fin,
+      id_contrato: formData.id_contrato,
+      id_usuario: formData.id_usuario,
+      estado: estadoFinal,
+      descripciones: formData.descripciones.map(d => d.descripcion)
     };
     
     const token = localStorage.getItem('token');
@@ -581,7 +583,7 @@ const handleOfertaSubmit = async (formData) => {
         description: `La oferta se ${isEditing.value ? 'actualizó' : 'creó'} correctamente`,
         type: 'success'
       };
-      await fetchItems(currentPage.value, itemsPorPage.value);
+      await fetchItems(currentPage.value, itemsPorPage.value, fecha_inicio.value, fecha_fin.value, id_contrato.value, id_usuario.value, '');
       showModal.value = false;
     } else {
       console.error('Error al guardar la oferta');
@@ -593,10 +595,9 @@ const handleOfertaSubmit = async (formData) => {
 
 function exportToExcel() {
   const exportData = itemsData.value.map(item => ({
-    'ID Oferta': item.id_oferta,
-    'Descripción': item.descripcion,
     'Fecha Inicio': item.fecha_inicio,
     'Fecha Fin': item.fecha_fin,
+    'Entidad': item.contrato?.entidad?.nombre,
     'Num Contrato': item.contrato?.num_consecutivo,
     'Usuario': item.usuario?.nombre,
     'Estado': item.estado ? item.estado.charAt(0).toUpperCase() + item.estado.slice(1) : ''

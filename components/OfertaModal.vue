@@ -26,12 +26,50 @@
       <!-- Formulario -->
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <div class="space-y-4">
-          <!-- Descripción -->
+          <!-- Descripciones -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-            <textarea v-model="formData.descripcion" :readonly="isViewing" :disabled="isViewing || isLoading" required rows="3"
-              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ingrese la descripción de la oferta"></textarea>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripciones</label>
+            <div class="space-y-2">
+              <div 
+                v-for="(descripcion, index) in descripciones" 
+                :key="index"
+                class="flex items-start space-x-2"
+              >
+                <textarea 
+                  v-model="descripciones[index]" 
+                  :readonly="isViewing" 
+                  :disabled="isViewing || isLoading" 
+                  :required="index === 0"
+                  rows="2"
+                  class="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  :placeholder="`Descripción ${index + 1}${index === 0 ? ' (requerida)' : ''}`"
+                  @input="handleDescripcionInput(index)"
+                ></textarea>
+                <button 
+                  v-if="!isViewing && descripciones.length > 1" 
+                  type="button"
+                  @click="removeDescripcion(index)"
+                  class="mt-2 p-1 text-red-500 hover:text-red-700 focus:outline-none"
+                  :disabled="isLoading"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+              <button 
+                v-if="!isViewing && descripciones.length < 15" 
+                type="button"
+                @click="addDescripcion"
+                class="w-full px-4 py-2 text-blue-600 border-2 border-dashed border-blue-300 rounded-lg hover:border-blue-400 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                :disabled="isLoading"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Agregar descripción
+              </button>
+            </div>
           </div>
           <!-- Fecha inicio -->
           <div>
@@ -162,13 +200,14 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'submit']);
 
 const formData = ref({
-  descripcion: '',
   fecha_inicio: '',
   fecha_fin: '',
   id_contrato: '',
   id_usuario: '',
   estado: 'no_facturada'
 });
+
+const descripciones = ref(['']);
 
 const errorMsg = ref('');
 const isLoading = ref(false);
@@ -177,7 +216,6 @@ const loadingBanner = ref(null);
 watch(() => [props.oferta, props.id_usuario, props.id_contrato], ([oferta, id_usuario, id_contrato]) => {
   if (oferta && Object.keys(oferta).length > 0) {
     formData.value = {
-      descripcion: oferta.descripcion || '',
       fecha_inicio: oferta.fecha_inicio ? oferta.fecha_inicio.split('T')[0] : '',
       fecha_fin: oferta.fecha_fin ? oferta.fecha_fin.split('T')[0] : '',
       id_contrato: (id_contrato !== null && id_contrato !== undefined)
@@ -188,15 +226,26 @@ watch(() => [props.oferta, props.id_usuario, props.id_contrato], ([oferta, id_us
         : Number(oferta.id_usuario || oferta.usuario?.id_usuario || 0) || null,
       estado: oferta.estado === 'facturada' ? 'facturada' : 'no_facturada'
     };
+    
+    // Cargar descripciones desde la oferta
+    if (oferta.descripciones && Array.isArray(oferta.descripciones)) {
+      descripciones.value = oferta.descripciones.map(d => d.descripcion || '');
+      // Agregar un campo vacío adicional si hay descripciones
+      if (descripciones.value.length > 0) {
+        descripciones.value.push('');
+      }
+    } else {
+      descripciones.value = [''];
+    }
   } else {
     formData.value = {
-      descripcion: '',
       fecha_inicio: '',
       fecha_fin: '',
       id_contrato: null,
       id_usuario: null,
       estado: 'no_facturada'
     };
+    descripciones.value = [''];
   }
 }, { immediate: true });
 watch(
@@ -216,9 +265,33 @@ watch(
     }
   }
 );
+// Funciones para manejar descripciones dinámicas
+const addDescripcion = () => {
+  if (descripciones.value.length < 15) {
+    descripciones.value.push('');
+  }
+};
+
+const removeDescripcion = (index) => {
+  if (descripciones.value.length > 1) {
+    descripciones.value.splice(index, 1);
+  }
+};
+
+const handleDescripcionInput = (index) => {
+  // Si se escribe en el último campo y no es el último elemento, agregar uno nuevo
+  if (index === descripciones.value.length - 1 && descripciones.value[index].trim() !== '' && descripciones.value.length < 15) {
+    descripciones.value.push('');
+  }
+};
+
 const handleSubmit = async () => {
   errorMsg.value = '';
-  if (!formData.value.descripcion || !formData.value.fecha_inicio || !formData.value.fecha_fin || !formData.value.id_contrato || !formData.value.id_usuario || !formData.value.estado) {
+  
+  // Filtrar descripciones vacías y verificar que al menos una esté presente
+  const descripcionesValidas = descripciones.value.filter(d => d.trim() !== '');
+  
+  if (descripcionesValidas.length === 0 || !formData.value.fecha_inicio || !formData.value.fecha_fin || !formData.value.id_contrato || !formData.value.id_usuario || !formData.value.estado) {
     errorMsg.value = 'Todos los campos son obligatorios.';
     return;
   }
@@ -232,9 +305,15 @@ const handleSubmit = async () => {
   };
   
   try {
+    // Preparar datos para enviar
+    const datosParaEnviar = {
+      ...formData.value,
+      descripciones: descripcionesValidas.map(descripcion => ({ descripcion: descripcion.trim() }))
+    };
+    
     // Emitir el evento submit y esperar la respuesta
     await new Promise((resolve, reject) => {
-      emit('submit', { ...formData.value });
+      emit('submit', datosParaEnviar);
       // Simular un pequeño delay para que el usuario vea el mensaje
       setTimeout(resolve, 100);
     });
