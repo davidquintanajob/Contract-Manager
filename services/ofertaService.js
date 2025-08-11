@@ -1,7 +1,9 @@
 const Oferta = require("../models/oferta.js");
+const OfertaDescripcion = require("../models/oferta_descripcion.js");
 const Contrato = require("../models/contrato.js");
 const Usuario = require("../models/usuario.js");
 const { Op } = require('sequelize');
+const sequelize = require("../helpers/database.js");
 
 /**
  * Servicio para la gestión de ofertas
@@ -89,12 +91,7 @@ const OfertaService = {
       }
     }
 
-    // Validar descripcion
-    if (!data.descripcion) {
-      errors.push('La descripción es requerida');
-    } else if (typeof data.descripcion !== 'string' || data.descripcion.trim().length === 0) {
-      errors.push('La descripción debe ser un texto no vacío');
-    }
+
 
     // Validar estado si está presente
     if (data.estado !== undefined && data.estado !== null) {
@@ -142,6 +139,10 @@ const OfertaService = {
           {
             model: Usuario,
             as: 'usuario'
+          },
+          {
+            model: require('../models/oferta_descripcion'),
+            as: 'descripciones'
           }
         ],
         order: [['fecha_inicio', 'DESC']]
@@ -183,6 +184,10 @@ const OfertaService = {
           {
             model: Usuario,
             as: 'usuario'
+          },
+          {
+            model: require('../models/oferta_descripcion'),
+            as: 'descripciones'
           }
         ]
       });
@@ -199,36 +204,73 @@ const OfertaService = {
   },
 
   /**
-   * Crea una nueva oferta
+   * Crea una nueva oferta con sus descripciones
    * @param {Object} ofertaData - Datos de la oferta a crear
-   * @returns {Promise<Object>} Oferta creada
+   * @param {Array<string>} descripciones - Lista de descripciones para la oferta
+   * @returns {Promise<Object>} Oferta creada con sus descripciones
    * @throws {Error} Si hay errores de validación
    */
-  createOferta: async (ofertaData) => {
+  createOferta: async (ofertaData, descripciones = []) => {
+    const transaction = await sequelize.transaction();
+    
     try {
-      // Validar datos
+      // Validar datos de la oferta
       const errors = await OfertaService.validateOferta(ofertaData);
       if (errors.length > 0) {
         throw new Error(errors.join(', '));
       }
 
-      // Crear oferta
-      const oferta = await Oferta.create(ofertaData);
+      // Validar descripciones
+      if (descripciones && !Array.isArray(descripciones)) {
+        throw new Error('Las descripciones deben ser un array');
+      }
+
+      if (descripciones && descripciones.length > 0) {
+        for (let i = 0; i < descripciones.length; i++) {
+          const descripcion = descripciones[i];
+          if (!descripcion || typeof descripcion !== 'string' || descripcion.trim().length === 0) {
+            throw new Error(`La descripción ${i + 1} debe ser un texto no vacío`);
+          }
+        }
+      }
+
+      // Crear oferta dentro de la transacción
+      const oferta = await Oferta.create(ofertaData, { transaction });
+
+      // Crear descripciones si se proporcionan
+      if (descripciones && descripciones.length > 0) {
+        const descripcionesData = descripciones.map(descripcion => ({
+          descripcion: descripcion.trim(),
+          id_oferta: oferta.id_oferta
+        }));
+
+        await OfertaDescripcion.bulkCreate(descripcionesData, { transaction });
+      }
+
+      // Commit de la transacción
+      await transaction.commit();
+
+      // Retornar la oferta creada con sus descripciones
       return await OfertaService.getOfertaById(oferta.id_oferta);
     } catch (error) {
-      console.error('Error al crear oferta:', error);
+      // Rollback en caso de error
+      await transaction.rollback();
+      console.error('Error al crear oferta con transacción:', error);
       throw new Error(`Error al crear oferta: ${error.message}`);
     }
   },
 
   /**
-   * Actualiza una oferta existente
+   * Actualiza una oferta existente con sus descripciones
    * @param {number} id - ID de la oferta a actualizar
    * @param {Object} ofertaData - Datos actualizados de la oferta
-   * @returns {Promise<Object>} Oferta actualizada
+   * @param {Array<string>} descripciones - Lista de descripciones para la oferta (opcional)
+   * @returns {Promise<Object>} Oferta actualizada con sus descripciones
    * @throws {Error} Si la oferta no existe, el ID es inválido o hay errores de validación
    */
-  updateOferta: async (id, ofertaData) => {
+  updateOferta: async (id, ofertaData, descripciones = null) => {
+    const transaction = await sequelize.transaction();
+    
     try {
       if (!OfertaService.validateId(id)) {
         throw new Error('ID de oferta inválido');
@@ -237,38 +279,96 @@ const OfertaService = {
       // Verificar si la oferta existe
       const ofertaExistente = await OfertaService.getOfertaById(id);
 
-      // Validar datos
+      // Validar datos de la oferta
       const errors = await OfertaService.validateOferta(ofertaData, id);
       if (errors.length > 0) {
         throw new Error(errors.join(', '));
       }
 
-      // Actualizar oferta
-      await ofertaExistente.update(ofertaData);
+      // Validar descripciones si se proporcionan
+      if (descripciones !== null) {
+        if (!Array.isArray(descripciones)) {
+          throw new Error('Las descripciones deben ser un array');
+        }
+
+        if (descripciones.length > 0) {
+          for (let i = 0; i < descripciones.length; i++) {
+            const descripcion = descripciones[i];
+            if (!descripcion || typeof descripcion !== 'string' || descripcion.trim().length === 0) {
+              throw new Error(`La descripción ${i + 1} debe ser un texto no vacío`);
+            }
+          }
+        }
+      }
+
+      // Actualizar oferta dentro de la transacción
+      await ofertaExistente.update(ofertaData, { transaction });
+
+      // Manejar descripciones si se proporcionan
+      if (descripciones !== null) {
+        // Eliminar todas las descripciones existentes
+        await OfertaDescripcion.destroy({
+          where: { id_oferta: id },
+          transaction
+        });
+
+        // Crear nuevas descripciones si se proporcionan
+        if (descripciones.length > 0) {
+          const descripcionesData = descripciones.map(descripcion => ({
+            descripcion: descripcion.trim(),
+            id_oferta: id
+          }));
+
+          await OfertaDescripcion.bulkCreate(descripcionesData, { transaction });
+        }
+      }
+
+      // Commit de la transacción
+      await transaction.commit();
+
+      // Retornar la oferta actualizada con sus descripciones
       return await OfertaService.getOfertaById(id);
     } catch (error) {
-      console.error('Error al actualizar oferta:', error);
+      // Rollback en caso de error
+      await transaction.rollback();
+      console.error('Error al actualizar oferta con transacción:', error);
       throw new Error(`Error al actualizar oferta: ${error.message}`);
     }
   },
 
   /**
-   * Elimina una oferta
+   * Elimina una oferta y todas sus descripciones
    * @param {number} id - ID de la oferta a eliminar
    * @returns {Promise<boolean>} true si se eliminó correctamente
    * @throws {Error} Si la oferta no existe o el ID es inválido
    */
   deleteOferta: async (id) => {
+    const transaction = await sequelize.transaction();
+    
     try {
       if (!OfertaService.validateId(id)) {
         throw new Error('ID de oferta inválido');
       }
 
+      // Verificar si la oferta existe
       const oferta = await OfertaService.getOfertaById(id);
-      await oferta.destroy();
+
+      // Eliminar todas las descripciones de la oferta
+      await OfertaDescripcion.destroy({
+        where: { id_oferta: id },
+        transaction
+      });
+
+      // Eliminar la oferta
+      await oferta.destroy({ transaction });
+
+      // Commit de la transacción
+      await transaction.commit();
       return true;
     } catch (error) {
-      console.error('Error al eliminar oferta:', error);
+      // Rollback en caso de error
+      await transaction.rollback();
+      console.error('Error al eliminar oferta con transacción:', error);
       throw new Error(`Error al eliminar oferta: ${error.message}`);
     }
   },
@@ -280,7 +380,6 @@ const OfertaService = {
    * @param {string} [filters.fecha_fin] - Fecha de fin para filtrar
    * @param {number} [filters.id_contrato] - ID del contrato
    * @param {number} [filters.id_usuario] - ID del usuario
-   * @param {string} [filters.descripcion] - Descripción de la oferta
    * @returns {Promise<Array>} Lista de ofertas filtradas
    */
   filterOfertas: async (filters = {}) => {
@@ -323,12 +422,7 @@ const OfertaService = {
         }
       }
 
-      // Filtrar por descripción
-      if (filters.descripcion) {
-        whereClause.descripcion = {
-          [Op.iLike]: `%${filters.descripcion.toLowerCase()}%`
-        };
-      }
+
 
       return await Oferta.findAll({
         where: whereClause,
@@ -350,6 +444,10 @@ const OfertaService = {
           {
             model: Usuario,
             as: 'usuario'
+          },
+          {
+            model: require('../models/oferta_descripcion'),
+            as: 'descripciones'
           }
         ],
         order: [['fecha_inicio', 'DESC']]

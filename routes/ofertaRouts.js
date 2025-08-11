@@ -29,16 +29,16 @@ const authenticate = require("../helpers/authenticate");
  *                 fecha_inicio: "2023-01-01"
  *                 fecha_fin: "2023-01-31"
  *                 id_contrato: 101
- *                 descripcion: "Oferta de desarrollo de software para proyecto X."
  *                 id_usuario: 50
  *                 estado: "vigente"
+ *                 descripciones: []
  *               - id_oferta: 2
  *                 fecha_inicio: "2023-02-15"
  *                 fecha_fin: "2023-03-15"
  *                 id_contrato: 102
- *                 descripcion: "Oferta de consultoría de TI."
  *                 id_usuario: 51
  *                 estado: "facturada"
+ *                 descripciones: []
  *       500:
  *         description: Error del servidor
  */
@@ -72,9 +72,6 @@ router.get("/oferta",authenticate(), ofertaController.getAllOfertas);
  *               id_usuario:
  *                 type: integer
  *                 description: ID del usuario
- *               descripcion:
- *                 type: string
- *                 description: Texto a buscar en la descripción
  *               estado:
  *                 type: string
  *                 enum: [vigente, facturada, vencida]
@@ -84,7 +81,6 @@ router.get("/oferta",authenticate(), ofertaController.getAllOfertas);
  *             fecha_fin: "2023-01-31"
  *             id_contrato: 101
  *             id_usuario: 50
- *             descripcion: "desarrollo"
  *             estado: "vigente"
  *     responses:
  *       200:
@@ -98,8 +94,8 @@ router.get("/oferta",authenticate(), ofertaController.getAllOfertas);
  *                 fecha_inicio: "2023-01-01"
  *                 fecha_fin: "2023-01-31"
  *                 id_contrato: 101
- *                 descripcion: "Oferta de desarrollo de software para proyecto X."
  *                 id_usuario: 50
+ *                 descripciones: []
  *       500:
  *         description: Error del servidor
  */
@@ -145,7 +141,7 @@ router.get("/oferta/:id",authenticate(), ofertaController.getOfertaById);
  * @swagger
  * /oferta/CreateOferta:
  *   post:
- *     summary: Crea una nueva oferta
+ *     summary: Crea una nueva oferta con sus descripciones
  *     tags:
  *       - Oferta
  *     requestBody:
@@ -154,27 +150,101 @@ router.get("/oferta/:id",authenticate(), ofertaController.getOfertaById);
  *         application/json:
  *           schema:
  *             type: object
- *             example:
- *               fecha_inicio: "YYYY-MM-DD"
- *               fecha_fin: "YYYY-MM-DD"
- *               id_contrato: 1
- *               descripcion: "Se busca desarrollador con experiencia en Node.js y React."
- *               id_usuario: 1
- *               estado: "vigente"
+ *             required:
+ *               - fecha_inicio
+ *               - fecha_fin
+ *               - id_contrato
+ *               - id_usuario
+ *             properties:
+ *               fecha_inicio:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de inicio de la oferta
+ *               fecha_fin:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de fin de la oferta
+ *               id_contrato:
+ *                 type: integer
+ *                 description: ID del contrato asociado
+ *               id_usuario:
+ *                 type: integer
+ *                 description: ID del usuario que crea la oferta
+ *               estado:
+ *                 type: string
+ *                 enum: [vigente, facturada, vencida]
+ *                 description: Estado de la oferta (opcional)
+ *               descripciones:
+ *                 type: array
+ *                 description: Lista de descripciones para la oferta (opcional)
+ *                 items:
+ *                   type: string
+ *                   description: Texto de la descripción
+ *           example:
+ *             fecha_inicio: "2024-01-01"
+ *             fecha_fin: "2024-12-31"
+ *             id_contrato: 1
+ *             id_usuario: 1
+ *             estado: "vigente"
+ *             descripciones:
+ *               - "Desarrollo de aplicación web con React"
+ *               - "Implementación de API REST con Node.js"
+ *               - "Configuración de base de datos PostgreSQL"
  *     responses:
  *       201:
- *         description: Oferta creada exitosamente
+ *         description: Oferta creada exitosamente con sus descripciones
  *         content:
  *           application/json:
  *             schema:
  *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Oferta creada exitosamente
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id_oferta:
+ *                       type: integer
+ *                     fecha_inicio:
+ *                       type: string
+ *                       format: date
+ *                     fecha_fin:
+ *                       type: string
+ *                       format: date
+ *                     id_contrato:
+ *                       type: integer
+ *                     id_usuario:
+ *                       type: integer
+ *                     estado:
+ *                       type: string
+ *                     descripciones:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id_oferta_descripcion:
+ *                             type: integer
+ *                           descripcion:
+ *                             type: string
+ *                           id_oferta:
+ *                             type: integer
  *             example:
- *               fecha_inicio: "YYYY-MM-DD"
- *               fecha_fin: "YYYY-MM-DD"
- *               id_contrato: 1
- *               descripcion: "Se busca desarrollador con experiencia en Node.js y React."
- *               id_usuario: 1
- *               estado: "vigente"
+ *               message: "Oferta creada exitosamente"
+ *               data:
+ *                 id_oferta: 1
+ *                 fecha_inicio: "2024-01-01"
+ *                 fecha_fin: "2024-12-31"
+ *                 id_contrato: 1
+ *                 id_usuario: 1
+ *                 estado: "vigente"
+ *                 descripciones:
+ *                   - id_oferta_descripcion: 1
+ *                     descripcion: "Desarrollo de aplicación web con React"
+ *                     id_oferta: 1
+ *                   - id_oferta_descripcion: 2
+ *                     descripcion: "Implementación de API REST con Node.js"
+ *                     id_oferta: 1
  *       400:
  *         description: Datos de entrada inválidos
  *       500:
@@ -186,7 +256,7 @@ router.post("/oferta/CreateOferta",authenticate(), ofertaController.createOferta
  * @swagger
  * /oferta/updateOferta/{id}:
  *   put:
- *     summary: Actualiza una oferta existente
+ *     summary: Actualiza una oferta existente con sus descripciones
  *     tags:
  *       - Oferta
  *     parameters:
@@ -202,27 +272,96 @@ router.post("/oferta/CreateOferta",authenticate(), ofertaController.createOferta
  *         application/json:
  *           schema:
  *             type: object
- *             example:
- *               fecha_inicio: "YYYY-MM-DD"
- *               fecha_fin: "YYYY-MM-DD"
- *               id_contrato: 1
- *               descripcion: "Actualización: Más énfasis en microservicios."
- *               id_usuario: 1
- *               estado: "facturada"
+ *             properties:
+ *               fecha_inicio:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de inicio de la oferta
+ *               fecha_fin:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de fin de la oferta
+ *               id_contrato:
+ *                 type: integer
+ *                 description: ID del contrato asociado
+ *               id_usuario:
+ *                 type: integer
+ *                 description: ID del usuario que actualiza la oferta
+ *               estado:
+ *                 type: string
+ *                 enum: [vigente, facturada, vencida]
+ *                 description: Estado de la oferta (opcional)
+ *               descripciones:
+ *                 type: array
+ *                 description: Lista de descripciones para la oferta (opcional, reemplaza todas las existentes)
+ *                 items:
+ *                   type: string
+ *                   description: Texto de la descripción
+ *           example:
+ *             fecha_inicio: "2024-01-01"
+ *             fecha_fin: "2024-12-31"
+ *             id_contrato: 1
+ *             id_usuario: 1
+ *             estado: "facturada"
+ *             descripciones:
+ *               - "Desarrollo de aplicación web con React - Actualizado"
+ *               - "Implementación de API REST con Node.js - Mejorado"
+ *               - "Configuración de base de datos PostgreSQL - Optimizado"
  *     responses:
  *       200:
- *         description: Oferta actualizada exitosamente
+ *         description: Oferta actualizada exitosamente con sus descripciones
  *         content:
  *           application/json:
  *             schema:
  *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Oferta actualizada exitosamente
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id_oferta:
+ *                       type: integer
+ *                     fecha_inicio:
+ *                       type: string
+ *                       format: date
+ *                     fecha_fin:
+ *                       type: string
+ *                       format: date
+ *                     id_contrato:
+ *                       type: integer
+ *                     id_usuario:
+ *                       type: integer
+ *                     estado:
+ *                       type: string
+ *                     descripciones:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id_oferta_descripcion:
+ *                             type: integer
+ *                           descripcion:
+ *                             type: string
+ *                           id_oferta:
+ *                             type: integer
  *             example:
- *               fecha_inicio: "YYYY-MM-DD"
- *               fecha_fin: "YYYY-MM-DD"
- *               id_contrato: 1
- *               descripcion: "Actualización: Más énfasis en microservicios."
- *               id_usuario: 1
- *               estado: "facturada"
+ *               message: "Oferta actualizada exitosamente"
+ *               data:
+ *                 id_oferta: 1
+ *                 fecha_inicio: "2024-01-01"
+ *                 fecha_fin: "2024-12-31"
+ *                 id_contrato: 1
+ *                 id_usuario: 1
+ *                 estado: "facturada"
+ *                 descripciones:
+ *                   - id_oferta_descripcion: 1
+ *                     descripcion: "Desarrollo de aplicación web con React - Actualizado"
+ *                     id_oferta: 1
+ *                   - id_oferta_descripcion: 2
+ *                     descripcion: "Implementación de API REST con Node.js - Mejorado"
+ *                     id_oferta: 1
  *       400:
  *         description: Datos de entrada inválidos
  *       404:
@@ -236,7 +375,7 @@ router.put("/oferta/updateOferta/:id",authenticate(), ofertaController.updateOfe
  * @swagger
  * /oferta/deleteOferta/{id}:
  *   delete:
- *     summary: Elimina una oferta
+ *     summary: Elimina una oferta y todas sus descripciones
  *     tags:
  *       - Oferta
  *     parameters:
@@ -248,7 +387,7 @@ router.put("/oferta/updateOferta/:id",authenticate(), ofertaController.updateOfe
  *           type: integer
  *     responses:
  *       204:
- *         description: Oferta eliminada exitosamente
+ *         description: Oferta y todas sus descripciones eliminadas exitosamente
  *       404:
  *         description: Oferta no encontrada
  *       500:

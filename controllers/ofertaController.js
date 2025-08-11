@@ -62,13 +62,13 @@ const OfertaController = {
   },
 
   /**
-   * Crea una nueva oferta
+   * Crea una nueva oferta con sus descripciones
    * @param {Object} req - Objeto de solicitud Express
    * @param {Object} res - Objeto de respuesta Express
    */
   createOferta: async (req, res) => {
     try {
-      const ofertaData = req.body;
+      const { descripciones, ...ofertaData } = req.body;
       
       // Validar estado si está presente
       if (ofertaData.estado !== undefined && ofertaData.estado !== null) {
@@ -81,7 +81,7 @@ const OfertaController = {
         }
       }
       
-      const oferta = await OfertaService.createOferta(ofertaData);
+      const oferta = await OfertaService.createOferta(ofertaData, descripciones || []);
       
       res.status(201).json({
         message: "Oferta creada exitosamente",
@@ -106,14 +106,14 @@ const OfertaController = {
   },
 
   /**
-   * Actualiza una oferta existente
+   * Actualiza una oferta existente con sus descripciones
    * @param {Object} req - Objeto de solicitud Express
    * @param {Object} res - Objeto de respuesta Express
    */
   updateOferta: async (req, res) => {
     try {
       const { id } = req.params;
-      const ofertaData = req.body;
+      const { descripciones, ...ofertaData } = req.body;
       
       // Validar estado si está presente
       if (ofertaData.estado !== undefined && ofertaData.estado !== null) {
@@ -126,7 +126,7 @@ const OfertaController = {
         }
       }
       
-      const oferta = await OfertaService.updateOferta(id, ofertaData);
+      const oferta = await OfertaService.updateOferta(id, ofertaData, descripciones);
       
       res.status(200).json({
         message: "Oferta actualizada exitosamente",

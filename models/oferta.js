@@ -29,10 +29,6 @@ const Oferta = sequelize.define("oferta", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  descripcion: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
   id_usuario: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -60,6 +56,10 @@ Oferta.associate = function(models) {
   Oferta.belongsTo(models.Contrato, {
     foreignKey: 'id_contrato',
     as: 'contrato',
+  });
+  Oferta.hasMany(models.OfertaDescripcion, {
+    foreignKey: 'id_oferta',
+    as: 'descripciones',
   });
 };
 

@@ -58,6 +58,7 @@ const tipoContratoRoutes = require("./routes/tipoContratoRouts");
 const entidadRoutes = require("./routes/entidadRouts");
 const contratoRoutes = require("./routes/contratoRouts");
 const ofertaRoutes = require("./routes/ofertaRouts");
+const ofertaDescripcionRoutes = require("./routes/ofertaDescripcionRouts");
 const trabajadorAutorizadoRoutes = require("./routes/trabajadorAutorizadoRouts");
 const contratoTrabajadorRoutes = require("./routes/contratoTrabajadorRouts");
 
@@ -67,6 +68,7 @@ app.use("/", tipoContratoRoutes);
 app.use("/", entidadRoutes);
 app.use("/", contratoRoutes);
 app.use("/", ofertaRoutes);
+app.use("/", ofertaDescripcionRoutes);
 app.use("/", trabajadorAutorizadoRoutes);
 app.use("/", contratoTrabajadorRoutes);
 
@@ -78,6 +80,7 @@ const Usuario = require("./models/usuario.js");
 // Luego modelos que dependen de los anteriores
 const Contrato = require("./models/contrato.js");
 const Oferta = require("./models/oferta.js");
+const OfertaDescripcion = require("./models/oferta_descripcion.js");
 const TrabajadorAutorizado = require("./models/trabajador_autorizado.js");
 const ContratoTrabajador = require("./models/contrato_trabajador.js");
 
@@ -94,6 +97,7 @@ function setupRelations() {
       Usuario,
       Contrato,
       Oferta,
+      OfertaDescripcion,
       TrabajadorAutorizado,
       ContratoTrabajador,
     };
@@ -108,6 +112,7 @@ function setupRelations() {
     // 3. Modelos con dependencias más complejas
     Contrato.associate(models);
     Oferta.associate(models);
+    OfertaDescripcion.associate(models);
     
     // 4. Modelos de unión/intermediarios
     TrabajadorAutorizado.associate(models);
