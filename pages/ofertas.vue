@@ -6,15 +6,11 @@
       <MessageBanner :title="errorBanner.title" :description="errorBanner.description" :type="errorBanner.type"
         @close="errorBanner = null" class="pointer-events-auto" />
     </div>
-    <div v-if="showConfirmBanner" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[10000] w-full max-w-md px-4 pointer-events-auto">
-      <ConfirmBanner
-        :title="'¿Estás seguro que deseas eliminar esta oferta?'"
-        :description="'Esta acción no se puede deshacer.'"
-        :icon="deleteIcon"
-        type="warning"
-        @confirm="confirmDeleteOferta"
-        @close="showConfirmBanner = false"
-      />
+    <div v-if="showConfirmBanner"
+      class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[10000] w-full max-w-md px-4 pointer-events-auto">
+      <ConfirmBanner :title="'¿Estás seguro que deseas eliminar esta oferta?'"
+        :description="'Esta acción no se puede deshacer.'" :icon="deleteIcon" type="warning"
+        @confirm="confirmDeleteOferta" @close="showConfirmBanner = false" />
     </div>
     <!-- Barra de búsqueda y filtros -->
     <div class="container mx-auto px-4 py-4 md:py-4 mt-20 md:mt-0">
@@ -46,39 +42,33 @@
           </button>
         </div>
         <!-- Campos adicionales (colapsables en móvil) -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4"
-          :class="{ 'hidden md:grid': !showFilters }">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4" :class="{ 'hidden md:grid': !showFilters }">
           <!-- Fecha inicio -->
           <div class="w-full">
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha inicio</label>
-            <input type="date" v-model="fecha_inicio" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" @keyup.enter="handleSearch">
+            <input type="date" v-model="fecha_inicio"
+              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              @keyup.enter="handleSearch">
           </div>
           <!-- Fecha fin -->
           <div class="w-full">
             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha fin</label>
-            <input type="date" v-model="fecha_fin" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" @keyup.enter="handleSearch">
+            <input type="date" v-model="fecha_fin"
+              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              @keyup.enter="handleSearch">
           </div>
           <!-- Usuario -->
           <div class="w-full">
             <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
-            <SelectSearch
-              v-model="id_usuario"
-              :options="usuarios"
-              labelKey="nombre"
-              valueKey="id_usuario"
-              placeholder="Buscar usuario..."
-            />
+            <SelectSearch v-model="id_usuario" :options="usuarios" labelKey="nombre" valueKey="id_usuario"
+              placeholder="Buscar usuario..." />
           </div>
           <!-- Contrato -->
           <div class="w-full">
             <label class="block text-sm font-medium text-gray-700 mb-1">Contrato</label>
-            <SelectSearch
-              v-model="id_contrato"
-              :options="contratos"
-              :labelKey="(c) => `${c.entidad?.nombre}: ${c?.num_consecutivo} - ${c.tipoContrato?.nombre} - (${c.fecha_inicio?.substring(0,4)})`"
-              valueKey="id_contrato"
-              placeholder="Buscar contrato..."
-            />
+            <SelectSearch v-model="id_contrato" :options="contratos"
+              :labelKey="(c) => `${c.entidad?.nombre}: ${c?.num_consecutivo} - ${c.tipoContrato?.nombre} - (${c.fecha_inicio?.substring(0, 4)})`"
+              valueKey="id_contrato" placeholder="Buscar contrato..." />
           </div>
         </div>
         <!-- Botón de búsqueda -->
@@ -112,24 +102,14 @@
         @page-change="handlePageChange" />
     </div>
     <!-- Modal de Oferta (estructura base, puedes personalizarla luego) -->
-    <OfertaModal
-      v-model="showModal"
-      :oferta="selectedOferta"
-      :is-editing="isEditing"
-      :is-viewing="isViewing"
-      :usuarios="usuarios"
-      :contratos="contratos"
+    <OfertaModal v-model="showModal" :oferta="selectedOferta" :is-editing="isEditing" :is-viewing="isViewing"
+      :usuarios="usuarios" :contratos="contratos"
       :id_usuario="selectedOferta.id_usuario ?? selectedOferta.usuario?.id_usuario ?? null"
       :id_contrato="selectedOferta.id_contrato ?? selectedOferta.contrato?.id_contrato ?? null"
-      @submit="handleOfertaSubmit"
-    />
-    
+      @submit="handleOfertaSubmit" />
+
     <!-- Modal PDF -->
-    <ModalPDF
-      v-model:show="showModalPDF"
-      :oferta-data="ofertaParaPDF"
-      @close="showModalPDF = false"
-    />
+    <ModalPDF v-model:show="showModalPDF" :oferta-data="ofertaParaPDF" @close="showModalPDF = false" />
   </div>
 </template>
 
@@ -172,8 +152,8 @@ const ofertasColumns = [
   { key: 'contrato.entidad.nombre', label: 'Entidad' },
   { key: 'contrato.num_consecutivo', label: 'Num Contrato' },
   { key: 'usuario.nombre', label: 'Usuario' },
-  { 
-    key: 'estado', 
+  {
+    key: 'estado',
     label: 'Estado',
     cellRenderer: (value) => {
       if (!value) return '';
@@ -245,7 +225,7 @@ const fetchItems = async (
   id_contrato_ = '',
   id_usuario_ = '',
   descripcion_ = ''
-    ) => {
+) => {
   try {
     isLoading.value = true;
     const token = localStorage.getItem('token');
@@ -439,6 +419,11 @@ const ofertasActions = [
 // Modificar nuevaOferta para usar abrirModalOferta
 async function nuevaOferta() {
   if (!usuarios.value.length || !contratos.value.length) {
+    errorBanner.value = {
+      title: 'Obteniendo Datos',
+      description: 'Obteniendo datos de usuarios y contratos necesarios para la creación de una nueva oferta.',
+      type: 'warning'
+    };
     await fetchUsuariosYContratos();
   }
   selectedOferta.value = {};
@@ -514,7 +499,7 @@ const handleOfertaSubmit = async (formData) => {
   try {
     // Determinar el estado automáticamente basándose en la selección del modal y las fechas
     let estadoFinal;
-    
+
     if (formData.estado === 'facturada') {
       // Si está seleccionado "Facturada", el estado es "facturada"
       estadoFinal = 'facturada';
@@ -522,7 +507,7 @@ const handleOfertaSubmit = async (formData) => {
       // Si está seleccionado "No Facturada", determinar si es "vigente" o "vencida" basándose en la fecha
       const fechaActual = new Date();
       const fechaFin = new Date(formData.fecha_fin);
-      
+
       if (fechaActual > fechaFin) {
         // Si la fecha actual es mayor que la fecha fin, es "vencida"
         estadoFinal = 'vencida';
@@ -531,7 +516,7 @@ const handleOfertaSubmit = async (formData) => {
         estadoFinal = 'vigente';
       }
     }
-    
+
     // Crear el objeto de datos con el estado determinado automáticamente
     const datosParaEnviar = {
       fecha_inicio: formData.fecha_inicio,
@@ -541,7 +526,7 @@ const handleOfertaSubmit = async (formData) => {
       estado: estadoFinal,
       descripciones: formData.descripciones.map(d => d.descripcion)
     };
-    
+
     const token = localStorage.getItem('token');
     const url = isEditing.value
       ? `${config.public.backendHost}/oferta/UpdateOferta/${selectedOferta.value.id_oferta}`
