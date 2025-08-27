@@ -33,15 +33,18 @@
             NIT: <span v-if="modoLectura">{{ form.nitProveedor }}</span><input v-else v-model="form.nitProveedor" class="bg-transparent outline-none w-40" />
           </div>
           <!-- Datos del Cliente -->
-          <div class="p-2 border-b border-blue-600">
-            <span class="font-bold text-blue-800">Datos del Cliente:</span><br>
-            Domicilio Legal: <span v-if="modoLectura">{{ form.domicilioCliente }}</span>
-            <input v-else v-model="form.domicilioCliente" class="bg-transparent outline-none w-2/3" />
-            <br>
-            Cuentas Bancarias en CUP: <span v-if="modoLectura">{{ form.cupCliente }}</span><input v-else v-model="form.cupCliente" class="bg-transparent outline-none w-32" /> Sucursal: <span v-if="modoLectura">{{ form.sucursalCliente }}</span><input v-else v-model="form.sucursalCliente" class="bg-transparent outline-none w-32" />
-            <br>
-            Código REEUP: <span v-if="modoLectura">{{ form.reeupCliente }}</span><input v-else v-model="form.reeupCliente" class="bg-transparent outline-none w-32" /> NIT: <span v-if="modoLectura">{{ form.nitCliente }}</span><input v-else v-model="form.nitCliente" class="bg-transparent outline-none w-32" />
-          </div>
+            <div class="p-2 border-b border-blue-600">
+              <span class="font-bold text-blue-800">Datos del Cliente:</span>
+              <span v-if="props.ofertaData && props.ofertaData.contrato && props.ofertaData.contrato.entidad && props.ofertaData.contrato.entidad.nombre">
+                {{ props.ofertaData.contrato.entidad.nombre }}
+              </span><br>
+              Domicilio Legal: <span v-if="modoLectura">{{ form.domicilioCliente }}</span>
+              <input v-else v-model="form.domicilioCliente" class="bg-transparent outline-none w-2/3" />
+              <br>
+              Cuentas Bancarias en CUP: <span v-if="modoLectura">{{ form.cupCliente }}</span><input v-else v-model="form.cupCliente" class="bg-transparent outline-none w-32" /> Sucursal: <span v-if="modoLectura">{{ form.sucursalCliente }}</span><input v-else v-model="form.sucursalCliente" class="bg-transparent outline-none w-32" />
+              <br>
+              Código REEUP: <span v-if="modoLectura">{{ form.reeupCliente }}</span><input v-else v-model="form.reeupCliente" class="bg-transparent outline-none w-32" /> NIT: <span v-if="modoLectura">{{ form.nitCliente }}</span><input v-else v-model="form.nitCliente" class="bg-transparent outline-none w-32" />
+            </div>
                      <!-- Tabla de productos/servicios -->
            <table class="w-full border-collapse border-blue-600" style="font-size: 12px; table-layout: fixed;">
              <thead>
@@ -146,8 +149,8 @@
     </div>
   </div>
 </template>
-
 <script setup>
+// ...existing code...
 import { ref, reactive, watch, nextTick } from 'vue';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -201,7 +204,7 @@ const form = reactive({
   firmaCliente: '',
   observaciones: '',
   pagoA: 'SOLUTEL S.R.L Cuenta Bancaria: CUP:1252354000140315',
-  validez: 'La Oferta válida por 7 días'
+    validez: ''
 });
 
 const valoresBase = {
@@ -270,6 +273,16 @@ function calcularTotales() {
   form.tabla.forEach(row => {
     const precio = parseFloat(row.precio) || 0;
     const importe = parseFloat(row.importe) || 0;
+        // Calcular días de validez
+        if (props.ofertaData.fecha_inicio && props.ofertaData.fecha_fin) {
+          const inicio = new Date(props.ofertaData.fecha_inicio);
+          const fin = new Date(props.ofertaData.fecha_fin);
+          const diffMs = fin - inicio;
+          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+          form.validez = `La Oferta válida por ${diffDays} días`;
+        } else {
+          form.validez = 'La Oferta válida por 7 días';
+        }
     
     totalPrecio += precio;
     totalImporte += importe;
@@ -325,13 +338,11 @@ watch(
 );
 
 async function exportarPDF() {
+  modoLectura.value = true;
+  await nextTick();
   try {
-    modoLectura.value = true;
-    await nextTick();
-    
     // Esperar un poco más para que todos los elementos se rendericen correctamente
     await new Promise(resolve => setTimeout(resolve, 100));
-    
     const element = pdfContent.value;
     const canvas = await html2canvas(element, {
       scale: 2,
@@ -346,7 +357,6 @@ async function exportarPDF() {
       windowWidth: element.scrollWidth,
       windowHeight: element.scrollHeight
     });
-    
     const imgData = canvas.toDataURL('image/png', 1.0);
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -354,7 +364,6 @@ async function exportarPDF() {
     const imgProps = pdf.getImageProperties(imgData);
     const pdfWidth = pageWidth - 10;
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    
     if (pdfHeight <= pageHeight - 10) {
       pdf.addImage(imgData, 'PNG', 5, 5, pdfWidth, pdfHeight);
     } else {
