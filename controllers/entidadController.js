@@ -104,6 +104,10 @@ const EntidadController = {
 
     // Validar formato del email solo si se está proporcionando
     if (email && email.trim() !== '') {
+        // Si el email es una cadena vacía, eliminar el campo para que sea null en la BD
+        if (email === "") {
+          delete entidadData.email;
+        }
       if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
         errors.push("El email debe tener un formato válido (ejemplo: usuario@dominio.com)");
       }
@@ -141,6 +145,10 @@ const EntidadController = {
       cuenta_bancaria: cuenta_bancaria || ""
     };
 
+      // Si el email es una cadena vacía, eliminar el campo para que la BD lo tome como null
+      if (typeof entidadData.email === 'string' && entidadData.email.trim() === '') {
+        delete entidadData.email;
+      }
     try {
       const newEntidad = await EntidadService.create(entidadData);
       return res.status(201).json({
@@ -173,7 +181,7 @@ const EntidadController = {
       cuenta_bancaria
     } = req.body;
     const errors = [];
-
+    
     // Validar que el ID sea un número
     if (isNaN(id) || !Number.isInteger(Number(id))) {
       return res.status(400).json({
@@ -245,7 +253,10 @@ const EntidadController = {
         codigo_nit: codigo_nit !== undefined ? codigo_nit : entidad.codigo_nit,
         cuenta_bancaria: cuenta_bancaria !== undefined ? cuenta_bancaria : entidad.cuenta_bancaria
       };
-
+        // Si el email es una cadena vacía, eliminar el campo para que la BD lo tome como null
+        if (typeof entidadData.email === 'string' && entidadData.email.trim() === '') {
+          delete entidadData.email;
+        }
       const updatedEntidad = await EntidadService.update(Number(id), entidadData);
       return res.status(200).json({
         message: "Entidad actualizada exitosamente",
