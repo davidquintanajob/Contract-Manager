@@ -1,5 +1,6 @@
 <template>
   <div>
+    <SeoMeta title="Trabajadores - Contract Manager" description="Registra y gestiona trabajadores autorizados y sus contratos." canonical="/trabajadores" />
     <Navbar />
     <div v-if="errorBanner"
       class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4 pointer-events-none">
@@ -114,6 +115,7 @@
 
 <script setup>
 import { ref, onMounted, h } from 'vue';
+import SeoMeta from '@/components/SeoMeta.vue';
 import Navbar from '@/components/Navbar.vue';
 import DataTable from '@/components/DataTable.vue';
 import TrabajadorModal from '@/components/TrabajadorModal.vue';

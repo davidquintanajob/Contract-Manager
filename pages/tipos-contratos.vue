@@ -1,5 +1,6 @@
 <template>
   <div>
+    <SeoMeta title="Tipos de Contrato - Contract Manager" description="Gestiona los diferentes tipos de contrato disponibles." canonical="/tipos-contratos" />
     <Navbar />
     <div v-if="errorBanner"
       class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4 pointer-events-none">
@@ -54,6 +55,7 @@
 <script setup>
 /* global process */
 import { ref, computed, h, onMounted } from 'vue';
+import SeoMeta from '@/components/SeoMeta.vue';
 import Navbar from "@/components/Navbar.vue";
 import DataTable from "@/components/DataTable.vue";
 import TipoContratoModal from '@/components/TipoContratoModal.vue';

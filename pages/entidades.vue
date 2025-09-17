@@ -1,5 +1,6 @@
 <template>
     <div>
+      <SeoMeta title="Entidades - Contract Manager" description="Gestiona proveedores, clientes y otras entidades." canonical="/entidades" />
       <Navbar />
     <div v-if="errorBanner"
       class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4 pointer-events-none">
@@ -139,6 +140,7 @@
   </template>
   
   <script setup>
+import SeoMeta from '@/components/SeoMeta.vue';
 /* global process */
 import { ref, computed, h, onMounted } from 'vue';
   import Navbar from "@/components/Navbar.vue";

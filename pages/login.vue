@@ -1,5 +1,6 @@
 <template>
   <div class="flex min-h-screen flex-1 flex-col justify-center px-6 py-12 bg-gray-100">
+    <SeoMeta title="Iniciar Sesión - Contract Manager" description="Accede a Contract Manager para gestionar contratos y entidades." canonical="/login" />
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
       <img class="mx-auto h-24 w-24 rounded-full shadow mt-8" src="/logo.jpeg" alt="Logo" />
       <h2 class="mt-8 text-center text-2xl font-bold tracking-tight text-gray-900">Inicia sesión en tu cuenta</h2>
@@ -64,6 +65,7 @@
 </template>
 
 <script setup>
+import SeoMeta from '@/components/SeoMeta.vue';
 import { ref } from 'vue';
 import { useRuntimeConfig, navigateTo } from 'nuxt/app';
 

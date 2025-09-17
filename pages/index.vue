@@ -1,5 +1,10 @@
 <template>
   <div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-100 via-white to-blue-200">
+    <SeoMeta
+      title="Inicio - Contract Manager"
+      description="La plataforma integral para la gestión eficiente de contratos, entidades y trabajadores."
+      canonical="/"
+    />
     <Navbar />
     
     <!-- MessageBanner para mostrar estado de verificación de contratos -->
@@ -79,6 +84,7 @@
 <script setup>
 import Navbar from '@/components/Navbar.vue';
 import MessageBanner from '@/components/MessageBanner.vue';
+import SeoMeta from '@/components/SeoMeta.vue';
 import { navigateTo } from 'nuxt/app';
 import { ref, onMounted } from 'vue';
 
@@ -182,7 +188,6 @@ onMounted(() => {
   verificarContratosProximos();
 });
 </script>
-
 <style scoped>
 /* Estilos adicionales si son necesarios */
 </style>

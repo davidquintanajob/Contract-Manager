@@ -1,5 +1,6 @@
 <template>
   <div>
+    <SeoMeta title="Ofertas - Contract Manager" description="Consulta y administra ofertas asociadas a contratos." canonical="/ofertas" />
     <Navbar />
     <div v-if="errorBanner"
       class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md px-4 pointer-events-none">
@@ -115,6 +116,7 @@
 
 <script setup>
 import { ref, h, onMounted, computed } from 'vue';
+import SeoMeta from '@/components/SeoMeta.vue';
 import Navbar from "@/components/Navbar.vue";
 import DataTable from "@/components/DataTable.vue";
 import MessageBanner from '@/components/MessageBanner.vue';

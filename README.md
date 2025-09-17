@@ -1,5 +1,19 @@
 # Contract Manager - Frontend
 
+<div align="center">
+   <img src="Imagenes/Vista%20principal%20de%20vienvenida.png" alt="Vista principal de bienvenida" width="720" />
+   <p><em>Vista principal de bienvenida</em></p>
+
+   <img src="Imagenes/Vista%20de%20Entidades.png" alt="Vista de Entidades" width="680" />
+   <p><em>Vista de Entidades</em></p>
+
+   <img src="Imagenes/Vista%20Perfil%20de%20Usuario.png" alt="Vista Perfil de Usuario" width="680" />
+   <p><em>Vista Perfil de Usuario</em></p>
+
+   <img src="Imagenes/Vista%20en%20movil%201.png" alt="Vista en móvil 1" width="360" />
+   <img src="Imagenes/Vista%20en%20Movil%202.png" alt="Vista en móvil 2" width="360" />
+</div>
+
 Sistema de gestión de contratos desarrollado con Nuxt 3, Vue 3 y Tailwind CSS. Esta aplicación permite gestionar contratos, entidades, ofertas, trabajadores y usuarios de manera eficiente.
 
 ## 🚀 Características
@@ -87,6 +101,8 @@ pnpm dev
 ```
 
 La aplicación estará disponible en `http://localhost:3000`
+
+### Estructura del Proyecto
 
 ### Estructura del Proyecto
 
