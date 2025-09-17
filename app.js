@@ -88,7 +88,9 @@ const ContratoTrabajador = require("./models/contrato_trabajador.js");
 console.log("Modelos registrados en Sequelize:", Object.keys(sequelize.models));
 
 // Configurar relaciones después de cargar todos los modelos
+let relationsInitialized = false;
 function setupRelations() {
+  if (relationsInitialized) return; // already done
   try {
     // Asegurarnos de que todos los modelos estén disponibles
     const models = {
@@ -118,10 +120,18 @@ function setupRelations() {
     TrabajadorAutorizado.associate(models);
     ContratoTrabajador.associate(models);
     
+    relationsInitialized = true;
   } catch (error) {
     console.error("❌ Error al establecer relaciones:", error);
     throw error;
   }
+}
+
+// Registrar relaciones en cualquier entorno (necesario para tests que usan eager loading)
+try {
+  setupRelations();
+} catch (err) {
+  console.error('Error al configurar relaciones al arrancar app:', err);
 }
 
 // Iniciar servidor y sincronizar BD
@@ -151,6 +161,9 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-startApp();
+// Iniciar servidor solo en entornos diferentes a 'test'
+if (String(process.env.NODE_ENV) !== 'test') {
+  startApp();
+}
 
 module.exports = app;

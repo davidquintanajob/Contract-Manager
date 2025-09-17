@@ -43,7 +43,8 @@ const EntidadController = {
     }
 
     try {
-      const entidad = await EntidadService.getById(Number(id));
+      const options = req.transaction ? { transaction: req.transaction } : {};
+      const entidad = await EntidadService.getById(Number(id), options);
       if (!entidad) {
         return res.status(404).json({
           message: `No se encontró la entidad con ID: ${id}`,
@@ -150,7 +151,8 @@ const EntidadController = {
         delete entidadData.email;
       }
     try {
-      const newEntidad = await EntidadService.create(entidadData);
+      const options = req.transaction ? { transaction: req.transaction } : {};
+      const newEntidad = await EntidadService.create(entidadData, options);
       return res.status(201).json({
         message: "Entidad creada exitosamente",
         data: newEntidad
@@ -232,7 +234,8 @@ const EntidadController = {
     }
 
     try {
-      const entidad = await EntidadService.getById(Number(id));
+      const options = req.transaction ? { transaction: req.transaction } : {};
+      const entidad = await EntidadService.getById(Number(id), options);
       if (!entidad) {
         return res.status(404).json({
           message: `No se encontró la entidad con ID: ${id}`,
@@ -257,7 +260,7 @@ const EntidadController = {
         if (typeof entidadData.email === 'string' && entidadData.email.trim() === '') {
           delete entidadData.email;
         }
-      const updatedEntidad = await EntidadService.update(Number(id), entidadData);
+      const updatedEntidad = await EntidadService.update(Number(id), entidadData, options);
       return res.status(200).json({
         message: "Entidad actualizada exitosamente",
         data: updatedEntidad
@@ -288,7 +291,8 @@ const EntidadController = {
     }
 
     try {
-      const entidad = await EntidadService.getById(Number(id));
+      const options = req.transaction ? { transaction: req.transaction } : {};
+      const entidad = await EntidadService.getById(Number(id), options);
       if (!entidad) {
         return res.status(404).json({
           message: `No se encontró la entidad con ID: ${id}`,
@@ -307,7 +311,7 @@ const EntidadController = {
         });
       }
 
-      await EntidadService.delete(Number(id));
+      await EntidadService.delete(Number(id), options);
       return res.status(200).json({
         message: "Entidad eliminada exitosamente"
       });
@@ -365,7 +369,8 @@ const EntidadController = {
     if (codigo_nit) filters.codigo_nit = codigo_nit;
 
     try {
-      const { entidades, pagination } = await EntidadService.filterEntidades(filters, pageNumber, limitNumber);
+      const options = req.transaction ? { transaction: req.transaction } : {};
+      const { entidades, pagination } = await EntidadService.filterEntidades(filters, pageNumber, limitNumber, options);
       return res.status(200).json({
         message: "Entidades filtradas exitosamente",
         data: entidades,

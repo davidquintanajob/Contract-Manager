@@ -109,7 +109,7 @@ const EntidadService = {
    * @returns {Promise<Object>} Entidad creada
    * @throws {Error} Si hay errores de validación
    */
-  create: async (data) => {
+  create: async (data, options = {}) => {
     try {
       // Validar datos
       const validationErrors = EntidadService.validateEntidad(data);
@@ -118,12 +118,12 @@ const EntidadService = {
       }
 
       // Verificar si ya existe una entidad con el mismo nombre
-      const existingEntidad = await Entidad.findOne({ where: { nombre: data.nombre } });
+      const existingEntidad = await Entidad.findOne({ where: { nombre: data.nombre }, ...options });
       if (existingEntidad) {
         throw new Error('Ya existe una entidad con ese nombre');
       }
 
-      return await Entidad.create(data);
+      return await Entidad.create(data, options);
     } catch (error) {
       console.error("Error en el servicio create de entidades:", error);
       if (error instanceof ValidationError) {
@@ -140,7 +140,7 @@ const EntidadService = {
    * @returns {Promise<Object|null>} Entidad actualizada o null si no existe
    * @throws {Error} Si hay errores de validación
    */
-  update: async (id, data) => {
+  update: async (id, data, options = {}) => {
     try {
       // Validar datos
       const validationErrors = EntidadService.validateEntidad(data);
@@ -148,20 +148,20 @@ const EntidadService = {
         throw new Error(validationErrors.join(', '));
       }
 
-      const entidad = await Entidad.findByPk(id);
+      const entidad = await Entidad.findByPk(id, options);
       if (!entidad) {
         return null;
       }
 
       // Verificar si el nuevo nombre ya existe en otra entidad
       if (data.nombre && data.nombre !== entidad.nombre) {
-        const existingEntidad = await Entidad.findOne({ where: { nombre: data.nombre } });
+        const existingEntidad = await Entidad.findOne({ where: { nombre: data.nombre }, ...options });
         if (existingEntidad) {
           throw new Error('Ya existe una entidad con ese nombre');
         }
       }
 
-      return await entidad.update(data);
+      return await entidad.update(data, options);
     } catch (error) {
       console.error("Error en el servicio update de entidades:", error);
       if (error instanceof ValidationError) {
@@ -176,11 +176,11 @@ const EntidadService = {
    * @param {number} id - ID de la entidad a eliminar
    * @returns {Promise<boolean>} true si se eliminó, false si no existe
    */
-  delete: async (id) => {
+  delete: async (id, options = {}) => {
     try {
-      const entidad = await Entidad.findByPk(id);
+      const entidad = await Entidad.findByPk(id, options);
       if (entidad) {
-        await entidad.destroy();
+        await entidad.destroy(options);
         return true;
       }
       return false;
@@ -199,7 +199,7 @@ const EntidadService = {
    * @param {number} limit - Número de elementos por página
    * @returns {Object} Objeto con las entidades filtradas y datos de paginación
    */
-  filterEntidades: async (filters, page = 1, limit = 10) => {
+  filterEntidades: async (filters, page = 1, limit = 10, options = {}) => {
     try {
       const offset = (page - 1) * limit;
       
@@ -214,7 +214,7 @@ const EntidadService = {
       }
 
       // Obtener el total de registros que coinciden con los filtros
-      const total = await Entidad.count({ where: whereClause });
+  const total = await Entidad.count({ where: whereClause, ...options });
 
       // Obtener las entidades con paginación
       const entidades = await Entidad.findAll({
@@ -240,7 +240,7 @@ const EntidadService = {
         limit,
         offset,
         order: [['createdAt', 'DESC']]
-      });
+      }, options);
 
       return {
         entidades,

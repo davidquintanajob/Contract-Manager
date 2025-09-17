@@ -20,7 +20,8 @@ const ContratoService = {
    * Obtiene todos los contratos con sus relaciones
    * @returns {Promise<Array>} Lista de contratos con sus relaciones
    */
-  getAll: async () => {
+  getAll: async (options = {}) => {
+    const { transaction } = options;
     return await Contrato.findAll({
       include: [
         {
@@ -39,7 +40,8 @@ const ContratoService = {
           model: TrabajadorAutorizado,
           as: 'trabajadoresAutorizados'
         }
-      ]
+      ],
+      transaction
     });
   },
 
@@ -48,7 +50,8 @@ const ContratoService = {
    * @param {number} id - ID del contrato a buscar
    * @returns {Promise<Object|null>} Contrato encontrado o null
    */
-  getById: async (id) => {
+  getById: async (id, options = {}) => {
+    const { transaction } = options;
     return await Contrato.findByPk(id, {
       include: [
         {
@@ -67,7 +70,8 @@ const ContratoService = {
           model: TrabajadorAutorizado,
           as: 'trabajadoresAutorizados'
         }
-      ]
+      ],
+      transaction
     });
   },
 
@@ -77,7 +81,7 @@ const ContratoService = {
    * @returns {Promise<number>} El siguiente número consecutivo disponible
    * @throws {Error} Si el año es inválido
    */
-  getNextConsecutivo: async (year) => {
+  getNextConsecutivo: async (year, options = {}) => {
     try {
       // Validar que el año sea un número válido
       const yearNum = parseInt(year);
@@ -90,6 +94,8 @@ const ContratoService = {
       const endOfYear = new Date(yearNum, 11, 32);
 
       // Buscar todos los contratos del año
+      const { transaction } = options;
+
       const contratos = await Contrato.findAll({
         where: {
           fecha_inicio: {
@@ -98,6 +104,8 @@ const ContratoService = {
         },
         attributes: ['num_consecutivo'],
         order: [['num_consecutivo', 'DESC']]
+      ,
+      transaction
       });
 
       // Si no hay contratos en el año, retornar 1
@@ -107,7 +115,6 @@ const ContratoService = {
 
       // Obtener el número consecutivo más alto
       const maxConsecutivo = contratos[0].num_consecutivo;
-      console.log("Número consecutivo más alto:", maxConsecutivo);
 
       // Retornar el siguiente número consecutivo
       return maxConsecutivo + 1;
@@ -123,8 +130,9 @@ const ContratoService = {
    * @param {number} [excludeId] - ID del contrato a excluir en validaciones (para actualizaciones)
    * @returns {Promise<Array>} Lista de errores encontrados
    */
-  validateContrato: async (data, excludeId = null) => {
+  validateContrato: async (data, excludeId = null, options = {}) => {
     const errors = [];
+    const { transaction } = options;
 
     // Validar fechas
     if (data.fecha_inicio && data.fecha_fin) {
@@ -154,7 +162,7 @@ const ContratoService = {
         whereClause.id_contrato = { [Op.ne]: excludeId };
       }
 
-      const existingContrato = await Contrato.findOne({ where: whereClause });
+      const existingContrato = await Contrato.findOne({ where: whereClause, transaction });
       if (existingContrato) {
         errors.push(`Ya existe un contrato con el número consecutivo ${data.num_consecutivo} en el año ${year}`);
       }
@@ -162,7 +170,7 @@ const ContratoService = {
 
     // Validar entidad
     if (data.id_entidad) {
-      const entidad = await Entidad.findByPk(data.id_entidad);
+      const entidad = await Entidad.findByPk(data.id_entidad, { transaction });
       if (!entidad) {
         errors.push('La entidad especificada no existe');
       }
@@ -170,7 +178,7 @@ const ContratoService = {
 
     // Validar tipo de contrato
     if (data.id_tipo_contrato) {
-      const tipoContrato = await TipoContrato.findByPk(data.id_tipo_contrato);
+      const tipoContrato = await TipoContrato.findByPk(data.id_tipo_contrato, { transaction });
       if (!tipoContrato) {
         errors.push('El tipo de contrato especificado no existe');
       }
@@ -207,6 +215,8 @@ const ContratoService = {
             attributes: ['nombre']
           }
         ]
+      ,
+      transaction
       });
 
       if (contratoVigente) {
@@ -223,15 +233,15 @@ const ContratoService = {
    * @returns {Promise<Object>} Contrato creado
    * @throws {Error} Si hay errores de validación
    */
-  create: async (data) => {
+  create: async (data, options = {}) => {
     // Validar datos
-    const errors = await ContratoService.validateContrato(data);
+    const errors = await ContratoService.validateContrato(data, null, options);
     
     if (errors.length > 0) {
       throw new Error(errors.join(', '));
     }
-
-    return await Contrato.create(data);
+    const { transaction } = options;
+    return await Contrato.create(data, { transaction });
   },
 
   /**
@@ -241,19 +251,20 @@ const ContratoService = {
    * @returns {Promise<Object|null>} Contrato actualizado o null si no existe
    * @throws {Error} Si hay errores de validación
    */
-  update: async (id, data) => {
-    const contrato = await Contrato.findByPk(id);
+  update: async (id, data, options = {}) => {
+    const { transaction } = options;
+    const contrato = await Contrato.findByPk(id, { transaction });
     if (!contrato) {
       return null;
     }
 
     // Validar datos
-    const errors = await ContratoService.validateContrato(data, id);
+    const errors = await ContratoService.validateContrato(data, id, options);
     if (errors.length > 0) {
       throw new Error(errors.join(', '));
     }
 
-    await contrato.update(data);
+    await contrato.update(data, { transaction });
     return await Contrato.findByPk(id, {
       include: [
         {
@@ -272,7 +283,8 @@ const ContratoService = {
           model: TrabajadorAutorizado,
           as: 'trabajadoresAutorizados'
         }
-      ]
+      ],
+      transaction
     });
   },
 
@@ -281,10 +293,11 @@ const ContratoService = {
    * @param {number} id - ID del contrato a eliminar
    * @returns {Promise<boolean>} true si se eliminó, false si no existe
    */
-  delete: async (id) => {
-    const contrato = await Contrato.findByPk(id);
+  delete: async (id, options = {}) => {
+    const { transaction } = options;
+    const contrato = await Contrato.findByPk(id, { transaction });
     if (contrato) {
-      await contrato.destroy();
+      await contrato.destroy({ transaction });
       return true;
     }
     return false;
@@ -302,8 +315,9 @@ const ContratoService = {
    * @param {number} limit - Límite de registros por página
    * @returns {Promise<Object>} Objeto con los contratos filtrados y metadatos de paginación
    */
-  filterContratos: async (filters, page = 1, limit = 10) => {
+  filterContratos: async (filters, page = 1, limit = 10, options = {}) => {
     try {
+      const { transaction } = options;
       const whereClause = {};
       const includeClause = [
         {
@@ -373,7 +387,8 @@ const ContratoService = {
       const totalCount = await Contrato.count({
         where: whereClause,
         include: countIncludeClause,
-        distinct: true
+        distinct: true,
+        transaction
       });
 
       // Luego, obtener los contratos con todas las relaciones para la página actual
@@ -382,7 +397,8 @@ const ContratoService = {
         include: includeClause,
         order: [['fecha_inicio', 'DESC'], ['num_consecutivo', 'DESC']],
         limit: parseInt(limit),
-        offset: offset
+        offset: offset,
+        transaction
       });
 
       // Calcular metadatos de paginación
@@ -411,8 +427,9 @@ const ContratoService = {
    * Obtiene contratos que están próximos a vencer (1 mes o menos antes de la fecha fin)
    * @returns {Promise<Array>} Lista de contratos próximos a vencer
    */
-  getContratosProximosAVencer: async () => {
+  getContratosProximosAVencer: async (options = {}) => {
     try {
+      const { transaction } = options;
       const fechaActual = new Date();
       const fechaLimite = new Date();
       fechaLimite.setMonth(fechaLimite.getMonth() + 1); // 1 mes desde hoy
@@ -436,6 +453,8 @@ const ContratoService = {
           }
         ],
         order: [['fecha_fin', 'ASC']] // Ordenar por fecha de vencimiento (más próximos primero)
+      ,
+      transaction
       });
     } catch (error) {
       console.error('Error al obtener contratos próximos a vencer:', error);

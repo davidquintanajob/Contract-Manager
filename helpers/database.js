@@ -15,8 +15,12 @@ const sequelize = new Sequelize(
 );
 
 // Prueba de conexión
-sequelize.authenticate()
-  .then(() => console.log('✅ Conexión a PostgreSQL establecida'))
-  .catch(err => console.error('❌ Error de conexión a la BD:', err));
+if (String(process.env.NODE_ENV) !== 'test') {
+  sequelize.authenticate()
+    .then(() => console.log('✅ Conexión a PostgreSQL establecida'))
+    .catch(err => console.error('❌ Error de conexión a la BD:', err));
+} else {
+  console.log('⚠️ Test environment detected: skipping DB authenticate');
+}
 
 module.exports = sequelize;
